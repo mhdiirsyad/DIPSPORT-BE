@@ -1,8 +1,31 @@
-import {gql} from "graphql-tag"
-import {DateTimeResolver} from "graphql-scalars"
+import { gql } from "graphql-tag"
+import { DateTimeResolver } from "graphql-scalars"
 
 export default gql`
   scalar DateTime
+
+  enum BookingStatus {
+    PENDING
+    APPROVED
+    CANCELLED
+    DONE
+  }
+
+  enum PaymentStatus {
+    UNPAID
+    PAID
+  }
+
+  enum DayofWeek {
+    SENIN
+    SELASA
+    RABU
+    KAMIS
+    JUMAT
+    SABTU
+    MINGGU
+  }
+
   type Stadion {
     id: ID!
     name: String!
@@ -18,6 +41,8 @@ export default gql`
     id: ID!
     stadionId: Int!
     facilityId: Int!
+    Stadion: Stadion
+    Facility: Facility
   }
 
   type Facility {
@@ -34,18 +59,21 @@ export default gql`
     pricePerHour: Int!
     images: [ImageField!]
     bookingDetails: [BookingDetail!]
+    Stadion: Stadion
   }
 
   type ImageStadion {
     id: ID!
     stadionId: Int!
     imageUrl: String!
+    Stadion: Stadion
   }
 
   type ImageField {
     id: ID!
     fieldId: Int!
     imageUrl: String!
+    Field: Field
   }
 
   type Booking {
@@ -55,11 +83,13 @@ export default gql`
     contact: String!
     email: String!
     institution: String
+    suratUrl: String
     isAcademic: Boolean!
     totalPrice: Int!
-    status: String!
-    details: [BookingDetail!]
+    status: BookingStatus!
+    paymentStatus: PaymentStatus!
     createdAt: DateTime!
+    details: [BookingDetail!]
   }
 
   type BookingDetail {
@@ -68,14 +98,20 @@ export default gql`
     fieldId: Int!
     bookingDate: DateTime!
     startHour: Int!
+    pricePerHour: Int!
     subtotal: Int!
+    createdAt: DateTime!
+    Booking: Booking
+    Field: Field
   }
 
   type OperatingHour {
     id: ID!
-    day: String!
-    openTime: String!
-    closeTime: String!
+    stadionId: Int!
+    day: DayofWeek!
+    openTime: DateTime!
+    closeTime: DateTime!
+    Stadion: Stadion
   }
 
   type AdminLog {
@@ -86,11 +122,13 @@ export default gql`
     targetId: Int
     description: String
     createdAt: DateTime!
+    Admin: Admin
   }
 
   type Admin {
     id: ID!
     name: String!
+    email: String
     password: String!
     adminLogs: [AdminLog!]
   }
@@ -104,6 +142,7 @@ export default gql`
     bookings: [Booking!]
     booking(id: ID!): Booking
     facilities: [Facility!]
+    admins: [Admin!]
   }
 
   # Mutation
@@ -114,17 +153,17 @@ export default gql`
   }
 
   type Mutation {
-    createStadion (
+    createStadion(
       name: String!
       description: String
       mapUrl: String!
-     ) : Stadion!
+    ): Stadion!
 
-     createField (
+    createField(
       id: ID!
       name: String!
       description: String
       pricePerHour: Int!
-     ) : Field!
+    ): Field!
   }
 `
