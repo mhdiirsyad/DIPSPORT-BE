@@ -2,6 +2,29 @@ import { gql } from "graphql-tag"
 
 export default gql`
   scalar DateTime
+
+  enum BookingStatus {
+    PENDING
+    APPROVED
+    CANCELLED
+    DONE
+  }
+
+  enum PaymentStatus {
+    UNPAID
+    PAID
+  }
+
+  enum DayofWeek {
+    SENIN
+    SELASA
+    RABU
+    KAMIS
+    JUMAT
+    SABTU
+    MINGGU
+  }
+
   type Stadion {
     id: ID!
     name: String!
@@ -17,6 +40,8 @@ export default gql`
     id: ID!
     stadionId: Int!
     facilityId: Int!
+    Stadion: Stadion
+    Facility: Facility
   }
 
   type Facility {
@@ -33,18 +58,21 @@ export default gql`
     pricePerHour: Int!
     images: [ImageField!]
     bookingDetails: [BookingDetail!]
+    Stadion: Stadion
   }
 
   type ImageStadion {
     id: ID!
     stadionId: Int!
     imageUrl: String!
+    Stadion: Stadion
   }
 
   type ImageField {
     id: ID!
     fieldId: Int!
     imageUrl: String!
+    Field: Field
   }
 
   type Booking {
@@ -54,13 +82,14 @@ export default gql`
     contact: String!
     email: String!
     institution: String
+    suratUrl: String
     isAcademic: Boolean!
     suratUrl: String
     totalPrice: Int!
     status: BookingStatus!
     paymentStatus: PaymentStatus!
-    details: [BookingDetail!]
     createdAt: DateTime!
+    details: [BookingDetail!]
   }
 
   type BookingDetail {
@@ -69,6 +98,7 @@ export default gql`
     fieldId: Int!
     bookingDate: DateTime!
     startHour: Int!
+    pricePerHour: Int!
     subtotal: Int!
     createdAt: DateTime!
   }
@@ -78,6 +108,11 @@ export default gql`
     day: DayofWeek!
     openTime: DateTime!
     closeTime: DateTime!
+    stadionId: Int!
+    day: DayofWeek!
+    openTime: DateTime!
+    closeTime: DateTime!
+    Stadion: Stadion
   }
 
   type AdminLog {
@@ -88,6 +123,7 @@ export default gql`
     targetId: Int
     description: String
     createdAt: DateTime!
+    Admin: Admin
   }
 
   type Admin {
@@ -110,6 +146,7 @@ export default gql`
     operatingHours: [OperatingHour!]
     operatingHour(stadionId: ID!) : OperatingHour!
     adminLogs: [AdminLog!]
+    admins: [Admin!]
   }
 
   # Input
@@ -145,7 +182,7 @@ export default gql`
 
   # Mutation
   type Mutation {
-    createStadion (
+    createStadion(
       name: String!
       description: String
       mapUrl: String!
@@ -163,6 +200,10 @@ export default gql`
     ) : stadionId!
 
     createField (
+    ): Stadion!
+
+    createField(
+      id: ID!
       name: String!
       stadionId: Int!
       description: String
@@ -254,5 +295,6 @@ export default gql`
       name: String!
       password: String!
     ) : name!
+    ): Field!
   }
 `
