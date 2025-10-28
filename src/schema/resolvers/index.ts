@@ -1,4 +1,4 @@
-import { DateResolver } from "graphql-scalars"
+import { DateTimeResolver } from "graphql-scalars"
 import { stadionResolvers } from "./stadionResolver"
 import { fieldResolvers } from "./fieldResolver"
 
@@ -30,5 +30,5 @@ export default {
       ...fieldResolvers.Mutation,
     },
 
-  DateTime: DateResolver
+  DateTime: DateTimeResolver,
 }
