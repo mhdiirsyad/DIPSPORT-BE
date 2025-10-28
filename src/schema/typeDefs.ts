@@ -1,5 +1,4 @@
 import { gql } from "graphql-tag"
-import { DateTimeResolver } from "graphql-scalars"
 
 export default gql`
   scalar DateTime
@@ -85,6 +84,7 @@ export default gql`
     institution: String
     suratUrl: String
     isAcademic: Boolean!
+    suratUrl: String
     totalPrice: Int!
     status: BookingStatus!
     paymentStatus: PaymentStatus!
@@ -101,12 +101,13 @@ export default gql`
     pricePerHour: Int!
     subtotal: Int!
     createdAt: DateTime!
-    Booking: Booking
-    Field: Field
   }
 
   type OperatingHour {
     id: ID!
+    day: DayofWeek!
+    openTime: DateTime!
+    closeTime: DateTime!
     stadionId: Int!
     day: DayofWeek!
     openTime: DateTime!
@@ -140,30 +141,160 @@ export default gql`
     fields: [Field!]
     field(fieldId: ID!): Field
     bookings: [Booking!]
-    booking(id: ID!): Booking
+    booking(bookingCode: String!): Booking
     facilities: [Facility!]
+    operatingHours: [OperatingHour!]
+    operatingHour(stadionId: ID!) : OperatingHour!
+    adminLogs: [AdminLog!]
     admins: [Admin!]
   }
 
-  # Mutation
-  input InputField {
-    name: String!
-    description: String
-    pricePerHour: Int!
+  # Input
+  input BookingDetailInput {
+    fieldId: Int!
+    bookingDate: DateTime!
+    startHour: Int!
+    subtotal: Int!
   }
 
+  #Enum 
+  enum BookingStatus {
+    PENDING
+    APPROVED
+    CANCELLED
+    DONE
+  }
+
+  enum DayofWeek {
+    SENIN
+    SELASA
+    RABU
+    KAMIS
+    JUMAT
+    SABTU
+    MINGGU
+  }
+
+  enum PaymentStatus {
+    UNPAID
+    PAID
+  }
+
+  # Mutation
   type Mutation {
     createStadion(
       name: String!
       description: String
       mapUrl: String!
+    ) : Stadion!
+
+    updateStadion (
+      stadionId: ID!
+      name: String!
+      description: String
+      mapUrl: String!
+    ) : Stadion!
+
+    deleteStadion (
+      stadionId: ID!
+    ) : stadionId!
+
+    createField (
     ): Stadion!
 
     createField(
       id: ID!
       name: String!
+      stadionId: Int!
       description: String
       pricePerHour: Int!
+    ) : Field!
+
+    updateField (
+      fieldId: ID!
+      name: String!
+      stadionId: Int!
+      description: String
+      pricePerHour: Int!
+    ) : Field!
+
+    deleteField (
+      fieldId: ID!
+    ) : fieldId!
+
+    bookingField (
+      name: String!
+      contact: String!
+      email: String!
+      institution: String
+      isAcademic: Boolean
+      details: [BookingDetailInput!]!
+    ) : Booking!
+
+    updateStatusBooking (
+      bookingCode: String!
+      status: BookingStatus!
+    ) : Booking!
+
+    createOperatingHour (
+      stadionId: Int!
+      day: DayofWeek!
+      openTime: String!
+      closeTime: String!
+    ) : OperatingHour!
+
+    updateOperatingHour (
+      operatingHourId: ID!
+      stadionId: Int!
+      day: DayofWeek!
+      openTime: String!
+      closeTime: String!
+    ) : OperatingHour!
+
+    deleteOperatingHour (
+      operatingHourId: ID!
+    ) : operatingHourId!
+
+    uploadImageStadion (
+      stadionId: Int!
+      imageUrl: String!
+    ) : imageUrl!
+
+    updateImageStadion (
+      id: ID!
+      imageUrl: String! 
+    ) : imageUrl!
+
+    deleteImageStadion (
+      id: ID!
+    ) id!
+
+    uploadImageField (
+      fieldId: Int!
+      imageUrl: String!
+    ) : imageUrl!
+
+    updateImageField (
+      id: ID!
+      imageUrl: String! 
+    ) : imageUrl!
+
+    deleteImageField (
+      id: ID!
+    ) id!
+    
+    createAdminLog (
+      adminId: Int!
+      action: String!
+      targetTable: String
+      targetId: String
+      description: String
+    ) : AdminLog!
+
+    createAdmin (
+      name: String!
+      password: String!
+    ) : name!
     ): Field!
   }
 `
