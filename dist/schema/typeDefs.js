@@ -1,7 +1,5 @@
-import { gql } from "graphql-tag"
-import { DateTimeResolver } from "graphql-scalars"
-
-export default gql`
+import { gql } from "graphql-tag";
+export default gql `
   scalar DateTime
 
   enum BookingStatus {
@@ -133,16 +131,32 @@ export default gql`
     adminLogs: [AdminLog!]
   }
 
+  type AuthPayload {
+    token: String!
+    admin: Admin!
+  }
+
   # QUERY
   type Query {
+    # Stadion queries
     stadions: [Stadion!]
     stadion(stadionId: ID!): Stadion
+    
+    # Field queries
     fields: [Field!]
     field(fieldId: ID!): Field
+    
+    # Booking queries
     bookings: [Booking!]
     booking(id: ID!): Booking
+    
+    # Facility queries
     facilities: [Facility!]
+    
+    # Admin queries (protected)
+    me: Admin
     admins: [Admin!]
+    admin(id: ID!): Admin
   }
 
   # Mutation
@@ -153,12 +167,17 @@ export default gql`
   }
 
   type Mutation {
+    # Auth mutations
+    login(email: String!, password: String!): AuthPayload!
+    
+    # Stadion mutations
     createStadion(
       name: String!
       description: String
       mapUrl: String!
     ): Stadion!
 
+    # Field mutations
     createField(
       id: ID!
       name: String!
@@ -166,4 +185,4 @@ export default gql`
       pricePerHour: Int!
     ): Field!
   }
-`
+`;

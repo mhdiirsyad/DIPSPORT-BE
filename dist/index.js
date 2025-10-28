@@ -1,0 +1,29 @@
+import "dotenv/config";
+import express from "express";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@as-integrations/express5";
+import typeDefs from "./schema/typeDefs.js";
+import resolvers from "./schema/resolvers/index.js";
+import { prisma } from "./lib/prisma.js";
+import { getAuthContext } from "./lib/middleware.js";
+import bodyParser from "body-parser";
+const app = express();
+const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+});
+await server.start();
+app.use("/graphql", bodyParser.json(), expressMiddleware(server, {
+    context: async ({ req }) => {
+        // Extract dan verify token dari Authorization header
+        const { admin } = getAuthContext(req.headers.authorization);
+        return {
+            prisma,
+            admin,
+        };
+    },
+}));
+const port = process.env.PORT || 4000;
+app.listen(port, () => {
+    console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
+});

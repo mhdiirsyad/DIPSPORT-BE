@@ -10,9 +10,19 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./node_modules/@prisma/client"]
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@prisma/client"
+    ]
   },
-  "include": ["src", "prisma"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src",
+    "prisma"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
