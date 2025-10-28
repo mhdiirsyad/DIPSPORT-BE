@@ -18,13 +18,13 @@
     "graphql": "^16.11.0",
     "graphql-scalars": "^1.25.0",
     "graphql-tag": "^2.12.6",
-    "prisma": "^6.18.0",
     "ts-node-dev": "^2.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.4",
     "@types/node": "^24.9.1",
     "nodemon": "^3.1.10",
+    "prisma": "^6.18.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
