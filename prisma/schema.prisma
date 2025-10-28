@@ -30,6 +30,7 @@ model StadionFacility {
   facilityId Int
   Stadion Stadion @relation(fields: [stadionId], references: [id])
   Facility Facility @relation(fields: [facilityId], references: [id])
+
 }
 
 model Facility {
@@ -47,6 +48,8 @@ model Field {
   images ImageField[]
   bookingDetails BookingDetail[]
   Stadion Stadion @relation(fields: [stadionId], references: [id])
+
+  @@index([stadionId])
 }
 
 model ImageStadion {
@@ -70,6 +73,11 @@ enum BookingStatus {
   DONE
 }
 
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
 model Booking {
   id Int @id @default(autoincrement())
   bookingCode String @unique
@@ -77,11 +85,17 @@ model Booking {
   contact String
   email String
   institution String?
+  suratUrl String?
   isAcademic Boolean @default(false)
   totalPrice Int
-  status BookingStatus @default(PENDING)
+  status BookingStatus @default(PENDING) // status proses booking
+  paymentStatus PaymentStatus  @default(UNPAID) // status proses bayar buat audit misal yang pake surat atau ga
   createdAt DateTime @default(now())
   details BookingDetail[]
+
+  // buat peforma di admin
+  @@index([status, createdAt])
+  @@index([paymentStatus])
 }
 
 model BookingDetail {
@@ -90,9 +104,14 @@ model BookingDetail {
   fieldId Int
   bookingDate DateTime
   startHour Int
+  pricePerHour Int
   subtotal Int
+  createdAt DateTime @default(now()) // tambahan buat dijadiin waktu kunci slot
   Booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   Field Field @relation(fields: [fieldId], references: [id])
+
+  @@unique([fieldId, bookingDate, startHour])
+  @@index([fieldId, bookingDate])
 }
 
 enum DayofWeek {
@@ -109,9 +128,19 @@ model OperatingHour {
   id Int @id @default(autoincrement())
   stadionId Int
   day DayofWeek
-  openTime String
-  closeTime String
+  openTime DateTime
+  closeTime DateTime
   Stadion Stadion @relation(fields: [stadionId], references: [id])
+
+  @@unique([stadionId, day])
+}
+
+model Admin {
+  id Int @id @default(autoincrement())
+  name String
+  email String? @unique // Tambahan
+  password String
+  adminLogs AdminLog[]
 }
 
 model AdminLog {
@@ -123,11 +152,4 @@ model AdminLog {
   description String?
   createdAt DateTime @default(now())
   Admin Admin @relation(fields: [adminId], references: [id])
-}
-
-model Admin {
-  id Int @id @default(autoincrement())
-  name String
-  password String
-  adminLogs AdminLog[]
 }
