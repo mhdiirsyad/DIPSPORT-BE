@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("MYSQL_URL")
+}
+
+model Stadion {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+  mapUrl String
+  facilities StadionFacility[]
+  fields Field[]
+  images ImageStadion[]
+  operatingHours OperatingHour[]
+}
+
+model StadionFacility {
+  id Int @id @default(autoincrement())
+  stadionId Int
+  facilityId Int
+  Stadion Stadion @relation(fields: [stadionId], references: [id])
+  Facility Facility @relation(fields: [facilityId], references: [id])
+}
+
+model Facility {
+  id Int @id @default(autoincrement())
+  name String
+  stadionFacilities StadionFacility[]
+}
+
+model Field {
+  id Int @id @default(autoincrement())
+  stadionId Int
+  name String
+  description String?
+  pricePerHour Int
+  images ImageField[]
+  bookingDetails BookingDetail[]
+  Stadion Stadion @relation(fields: [stadionId], references: [id])
+}
+
+model ImageStadion {
+  id Int @id @default(autoincrement())
+  stadionId Int
+  imageUrl String
+  Stadion Stadion @relation(fields: [stadionId], references: [id])
+}
+
+model ImageField {
+  id Int @id @default(autoincrement())
+  fieldId Int
+  imageUrl String
+  Field Field @relation(fields: [fieldId], references: [id])
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  CANCELLED
+  DONE
+}
+
+model Booking {
+  id Int @id @default(autoincrement())
+  bookingCode String @unique
+  name String
+  contact String
+  email String
+  institution String?
+  isAcademic Boolean @default(false)
+  totalPrice Int
+  status BookingStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  details BookingDetail[]
+}
+
+model BookingDetail {
+  id Int @id @default(autoincrement())
+  bookingId Int
+  fieldId Int
+  bookingDate DateTime
+  startHour Int
+  subtotal Int
+  Booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  Field Field @relation(fields: [fieldId], references: [id])
+}
+
+enum DayofWeek {
+  SENIN
+  SELASA
+  RABU
+  KAMIS
+  JUMAT
+  SABTU
+  MINGGU
+}
+
+model OperatingHour {
+  id Int @id @default(autoincrement())
+  stadionId Int
+  day DayofWeek
+  openTime String
+  closeTime String
+  Stadion Stadion @relation(fields: [stadionId], references: [id])
+}
+
+model AdminLog {
+  id Int @id @default(autoincrement())
+  adminId Int
+  action String
+  targetTable String?
+  targetId Int?
+  description String?
+  createdAt DateTime @default(now())
+  Admin Admin @relation(fields: [adminId], references: [id])
+}
+
+model Admin {
+  id Int @id @default(autoincrement())
+  name String
+  password String
+  adminLogs AdminLog[]
+}
