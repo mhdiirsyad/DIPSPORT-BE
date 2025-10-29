@@ -126,8 +126,12 @@ export default gql`
     id: ID!
     name: String!
     email: String
-    password: String!
     adminLogs: [AdminLog!]
+  }
+
+  type AuthPayload {
+    token: String!
+    admin: Admin!
   }
 
   # QUERY
@@ -139,8 +143,9 @@ export default gql`
     bookings: [Booking!]
     booking(bookingCode: String!): Booking
     facilities: [Facility!]
+    me: Admin
     operatingHours: [OperatingHour!]
-    operatingHour(stadionId: ID!) : OperatingHour!
+    operatingHour(stadionId: ID!): OperatingHour!
     adminLogs: [AdminLog!]
     admins: [Admin!]
   }
@@ -153,139 +158,118 @@ export default gql`
     subtotal: Int!
   }
 
-  #Enum 
-  enum BookingStatus {
-    PENDING
-    APPROVED
-    CANCELLED
-    DONE
-  }
-
-  enum DayofWeek {
-    SENIN
-    SELASA
-    RABU
-    KAMIS
-    JUMAT
-    SABTU
-    MINGGU
-  }
-
-  enum PaymentStatus {
-    UNPAID
-    PAID
-  }
-
   # Mutation
   type Mutation {
+    login(email: String!, password: String!): AuthPayload!
+
     createStadion(
       name: String!
       description: String
       mapUrl: String!
-    ) : Stadion!
+    ): Stadion!
 
-    updateStadion (
+    updateStadion(
       stadionId: ID!
       name: String!
       description: String
       mapUrl: String!
-    ) : Stadion!
+    ): Stadion!
 
-    deleteStadion (
+    deleteStadion(
       stadionId: ID!
-    ) : ID!
+    ): ID!
 
     createField(
       name: String!
       stadionId: Int!
       description: String
       pricePerHour: Int!
-    ) : Field!
+    ): Field!
 
-    updateField (
+    updateField(
       fieldId: ID!
       name: String!
       stadionId: Int!
       description: String
       pricePerHour: Int!
-    ) : Field!
+    ): Field!
 
-    deleteField (
+    deleteField(
       fieldId: ID!
-    ) : ID!
+    ): ID!
 
-    bookingField (
+    bookingField(
       name: String!
       contact: String!
       email: String!
       institution: String
       isAcademic: Boolean
       details: [BookingDetailInput!]!
-    ) : Booking!
+    ): Booking!
 
-    updateStatusBooking (
+    updateStatusBooking(
       bookingCode: String!
       status: BookingStatus!
-    ) : Booking!
+    ): Booking!
 
-    createOperatingHour (
+    createOperatingHour(
       stadionId: Int!
       day: DayofWeek!
       openTime: String!
       closeTime: String!
-    ) : OperatingHour!
+    ): OperatingHour!
 
-    updateOperatingHour (
+    updateOperatingHour(
       operatingHourId: ID!
       stadionId: Int!
       day: DayofWeek!
       openTime: String!
       closeTime: String!
-    ) : OperatingHour!
+    ): OperatingHour!
 
-    deleteOperatingHour (
+    deleteOperatingHour(
       operatingHourId: ID!
-    ) : ID!
+    ): ID!
 
-    uploadImageStadion (
+    uploadImageStadion(
       stadionId: Int!
       imageUrl: String!
-    ) : String!
+    ): String!
 
-    updateImageStadion (
+    updateImageStadion(
       id: ID!
-      imageUrl: String! 
-    ) : String!
+      imageUrl: String!
+    ): String!
 
-    deleteImageStadion (
+    deleteImageStadion(
       id: ID!
-    ) : ID!
+    ): ID!
 
-    uploadImageField (
+    uploadImageField(
       fieldId: Int!
       imageUrl: String!
-    ) : String!
+    ): String!
 
-    updateImageField (
+    updateImageField(
       id: ID!
-      imageUrl: String! 
-    ) : String!
+      imageUrl: String!
+    ): String!
 
-    deleteImageField (
+    deleteImageField(
       id: ID!
-    ) : ID!
-    
-    createAdminLog (
+    ): ID!
+
+    createAdminLog(
       adminId: Int!
       action: String!
       targetTable: String
       targetId: String
       description: String
-    ) : AdminLog!
+    ): AdminLog!
 
-    createAdmin (
+    createAdmin(
       name: String!
       password: String!
-    ) : String!
+    ): String!
   }
 `

@@ -4,7 +4,7 @@ import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express5"
 import typeDefs from "./schema/typeDefs.js"
 import resolvers from "./schema/resolvers/index.js"
-import { prisma } from "./lib/prisma.js"
+import { buildContext } from "./lib/context.js"
 import bodyParser from "body-parser"
 
 const app = express()
@@ -19,9 +19,7 @@ app.use(
   "/graphql",
   bodyParser.json(),
   expressMiddleware(server, {
-    context: async () => ({
-      prisma,
-    }),
+    context: async ({ req }) => buildContext(req),
   })
 )
 
