@@ -84,7 +84,6 @@ export default gql`
     institution: String
     suratUrl: String
     isAcademic: Boolean!
-    suratUrl: String
     totalPrice: Int!
     status: BookingStatus!
     paymentStatus: PaymentStatus!
@@ -109,9 +108,6 @@ export default gql`
     openTime: DateTime!
     closeTime: DateTime!
     stadionId: Int!
-    day: DayofWeek!
-    openTime: DateTime!
-    closeTime: DateTime!
     Stadion: Stadion
   }
 
@@ -197,13 +193,9 @@ export default gql`
 
     deleteStadion (
       stadionId: ID!
-    ) : stadionId!
-
-    createField (
-    ): Stadion!
+    ) : ID!
 
     createField(
-      id: ID!
       name: String!
       stadionId: Int!
       description: String
@@ -220,7 +212,7 @@ export default gql`
 
     deleteField (
       fieldId: ID!
-    ) : fieldId!
+    ) : ID!
 
     bookingField (
       name: String!
@@ -253,35 +245,35 @@ export default gql`
 
     deleteOperatingHour (
       operatingHourId: ID!
-    ) : operatingHourId!
+    ) : ID!
 
     uploadImageStadion (
       stadionId: Int!
       imageUrl: String!
-    ) : imageUrl!
+    ) : String!
 
     updateImageStadion (
       id: ID!
       imageUrl: String! 
-    ) : imageUrl!
+    ) : String!
 
     deleteImageStadion (
       id: ID!
-    ) id!
+    ) : ID!
 
     uploadImageField (
       fieldId: Int!
       imageUrl: String!
-    ) : imageUrl!
+    ) : String!
 
     updateImageField (
       id: ID!
       imageUrl: String! 
-    ) : imageUrl!
+    ) : String!
 
     deleteImageField (
       id: ID!
-    ) id!
+    ) : ID!
     
     createAdminLog (
       adminId: Int!
@@ -294,7 +286,6 @@ export default gql`
     createAdmin (
       name: String!
       password: String!
-    ) : name!
-    ): Field!
+    ) : String!
   }
 `
