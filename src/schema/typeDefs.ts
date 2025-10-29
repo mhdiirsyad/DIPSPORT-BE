@@ -100,16 +100,14 @@ export default gql`
     pricePerHour: Int!
     subtotal: Int!
     createdAt: DateTime!
-    Booking: Booking
-    Field: Field
   }
 
   type OperatingHour {
     id: ID!
-    stadionId: Int!
     day: DayofWeek!
     openTime: DateTime!
     closeTime: DateTime!
+    stadionId: Int!
     Stadion: Stadion
   }
 
@@ -143,18 +141,24 @@ export default gql`
     fields: [Field!]
     field(fieldId: ID!): Field
     bookings: [Booking!]
-    booking(id: ID!): Booking
+    booking(bookingCode: String!): Booking
     facilities: [Facility!]
     me: Admin
+    operatingHours: [OperatingHour!]
+    operatingHour(stadionId: ID!): OperatingHour!
+    adminLogs: [AdminLog!]
+    admins: [Admin!]
+  }
+
+  # Input
+  input BookingDetailInput {
+    fieldId: Int!
+    bookingDate: DateTime!
+    startHour: Int!
+    subtotal: Int!
   }
 
   # Mutation
-  input InputField {
-    name: String!
-    description: String
-    pricePerHour: Int!
-  }
-
   type Mutation {
     login(email: String!, password: String!): AuthPayload!
 
@@ -164,11 +168,108 @@ export default gql`
       mapUrl: String!
     ): Stadion!
 
-    createField(
-      id: ID!
+    updateStadion(
+      stadionId: ID!
       name: String!
+      description: String
+      mapUrl: String!
+    ): Stadion!
+
+    deleteStadion(
+      stadionId: ID!
+    ): ID!
+
+    createField(
+      name: String!
+      stadionId: Int!
       description: String
       pricePerHour: Int!
     ): Field!
+
+    updateField(
+      fieldId: ID!
+      name: String!
+      stadionId: Int!
+      description: String
+      pricePerHour: Int!
+    ): Field!
+
+    deleteField(
+      fieldId: ID!
+    ): ID!
+
+    bookingField(
+      name: String!
+      contact: String!
+      email: String!
+      institution: String
+      isAcademic: Boolean
+      details: [BookingDetailInput!]!
+    ): Booking!
+
+    updateStatusBooking(
+      bookingCode: String!
+      status: BookingStatus!
+    ): Booking!
+
+    createOperatingHour(
+      stadionId: Int!
+      day: DayofWeek!
+      openTime: String!
+      closeTime: String!
+    ): OperatingHour!
+
+    updateOperatingHour(
+      operatingHourId: ID!
+      stadionId: Int!
+      day: DayofWeek!
+      openTime: String!
+      closeTime: String!
+    ): OperatingHour!
+
+    deleteOperatingHour(
+      operatingHourId: ID!
+    ): ID!
+
+    uploadImageStadion(
+      stadionId: Int!
+      imageUrl: String!
+    ): String!
+
+    updateImageStadion(
+      id: ID!
+      imageUrl: String!
+    ): String!
+
+    deleteImageStadion(
+      id: ID!
+    ): ID!
+
+    uploadImageField(
+      fieldId: Int!
+      imageUrl: String!
+    ): String!
+
+    updateImageField(
+      id: ID!
+      imageUrl: String!
+    ): String!
+
+    deleteImageField(
+      id: ID!
+    ): ID!
+
+    createAdminLog(
+      adminId: Int!
+      action: String!
+      targetTable: String
+      targetId: String
+      description: String
+    ): AdminLog!
+
+    createAdmin(
+      name: String!
+      password: String!
+    ): String!
   }
 `

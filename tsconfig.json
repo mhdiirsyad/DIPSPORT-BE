@@ -3,7 +3,7 @@
     "target": "es2017",
     "module": "esnext",
     "moduleResolution": "node",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
@@ -17,6 +17,9 @@
       "./node_modules/@types",
       "./node_modules/@prisma/client"
     ]
+  },
+  "ts-node": {
+    "esm": true
   },
   "include": [
     "src"
