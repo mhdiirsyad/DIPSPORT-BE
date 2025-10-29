@@ -84,12 +84,12 @@ export default gql`
     institution: String
     suratUrl: String
     isAcademic: Boolean!
-    suratUrl: String
     totalPrice: Int!
     status: BookingStatus!
     paymentStatus: PaymentStatus!
     createdAt: DateTime!
     details: [BookingDetail!]
+    # perbaikan: suraturl muncul dua kali
   }
 
   type BookingDetail {
@@ -105,14 +105,12 @@ export default gql`
 
   type OperatingHour {
     id: ID!
-    day: DayofWeek!
-    openTime: DateTime!
-    closeTime: DateTime!
     stadionId: Int!
     day: DayofWeek!
     openTime: DateTime!
     closeTime: DateTime!
     Stadion: Stadion
+    # perbaikan: hapus duplikat field (day/openTime/closeTime) yang sebelumnya ditulis dua kali
   }
 
   type AdminLog {
@@ -144,7 +142,7 @@ export default gql`
     booking(bookingCode: String!): Booking
     facilities: [Facility!]
     operatingHours: [OperatingHour!]
-    operatingHour(stadionId: ID!) : OperatingHour!
+    operatingHour(stadionId: ID!): OperatingHour!
     adminLogs: [AdminLog!]
     admins: [Admin!]
   }
@@ -157,144 +155,118 @@ export default gql`
     subtotal: Int!
   }
 
-  #Enum 
-  enum BookingStatus {
-    PENDING
-    APPROVED
-    CANCELLED
-    DONE
-  }
-
-  enum DayofWeek {
-    SENIN
-    SELASA
-    RABU
-    KAMIS
-    JUMAT
-    SABTU
-    MINGGU
-  }
-
-  enum PaymentStatus {
-    UNPAID
-    PAID
-  }
-
   # Mutation
   type Mutation {
     createStadion(
       name: String!
       description: String
       mapUrl: String!
-    ) : Stadion!
+    ): Stadion!
 
-    updateStadion (
+    updateStadion(
       stadionId: ID!
       name: String!
       description: String
       mapUrl: String!
-    ) : Stadion!
-
-    deleteStadion (
-      stadionId: ID!
-    ) : stadionId!
-
-    createField (
     ): Stadion!
 
+    deleteStadion(
+      stadionId: ID!
+    ): Boolean! # perbaikan: sebelumnya 'stadionId!'. Delete -> Boolean! (true jika sukses)
+
+    # perbaikan: menghapus deklarasi kosong 'createField()' yang bikin error
+
     createField(
-      id: ID!
-      name: String!
       stadionId: Int!
+      name: String!
       description: String
       pricePerHour: Int!
-    ) : Field!
+    ): Field! # perbaikan: hapus argumen 'id: ID!' (ID auto-increment di DB)
 
-    updateField (
+    updateField(
       fieldId: ID!
-      name: String!
       stadionId: Int!
+      name: String!
       description: String
       pricePerHour: Int!
-    ) : Field!
+    ): Field!
 
-    deleteField (
+    deleteField(
       fieldId: ID!
-    ) : fieldId!
+    ): Boolean! # perbaikan: sebelumnya 'fieldId!'. Delete -> Boolean!
 
-    bookingField (
+    bookingField(
       name: String!
       contact: String!
       email: String!
       institution: String
       isAcademic: Boolean
       details: [BookingDetailInput!]!
-    ) : Booking!
+    ): Booking!
 
-    updateStatusBooking (
+    updateStatusBooking(
       bookingCode: String!
       status: BookingStatus!
-    ) : Booking!
+    ): Booking!
 
-    createOperatingHour (
+    createOperatingHour(
       stadionId: Int!
       day: DayofWeek!
       openTime: String!
       closeTime: String!
-    ) : OperatingHour!
+    ): OperatingHour!
 
-    updateOperatingHour (
+    updateOperatingHour(
       operatingHourId: ID!
       stadionId: Int!
       day: DayofWeek!
       openTime: String!
       closeTime: String!
-    ) : OperatingHour!
+    ): OperatingHour!
 
-    deleteOperatingHour (
+    deleteOperatingHour(
       operatingHourId: ID!
-    ) : operatingHourId!
+    ): Boolean! # perbaikan: sebelumnya 'operatingHourId!'. Delete -> Boolean!
 
-    uploadImageStadion (
+    uploadImageStadion(
       stadionId: Int!
       imageUrl: String!
-    ) : imageUrl!
+    ): ImageStadion! # perbaikan: sebelumnya return 'imageUrl!'. mengembalikan object yang dibuat
 
-    updateImageStadion (
+    updateImageStadion(
       id: ID!
-      imageUrl: String! 
-    ) : imageUrl!
+      imageUrl: String!
+    ): ImageStadion! # perbaikan: sama kaya di atas
 
-    deleteImageStadion (
+    deleteImageStadion(
       id: ID!
-    ) id!
+    ): Boolean! # perbaikan: sebelumnya 'id!'. Delete -> Boolean!
 
-    uploadImageField (
+    uploadImageField(
       fieldId: Int!
       imageUrl: String!
-    ) : imageUrl!
+    ): ImageField! # perbaikan: sebelumnya return 'imageUrl!'. mengembalikan object yang dibuat
 
-    updateImageField (
+    updateImageField(
       id: ID!
-      imageUrl: String! 
-    ) : imageUrl!
+      imageUrl: String!
+    ): ImageField! # perbaikan
 
-    deleteImageField (
+    deleteImageField(
       id: ID!
-    ) id!
-    
-    createAdminLog (
+    ): Boolean! # perbaikan: sebelumnya 'id!'. Delete -> Boolean!
+
+    createAdminLog(
       adminId: Int!
       action: String!
       targetTable: String
       targetId: String
       description: String
-    ) : AdminLog!
+    ): AdminLog!
 
-    createAdmin (
+    createAdmin(
       name: String!
       password: String!
-    ) : name!
-    ): Field!
+    ): Admin! # perbaikan: sebelumnya 'name!'. mengembalikan object Admin
   }
 `
