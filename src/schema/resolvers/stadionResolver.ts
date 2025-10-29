@@ -15,7 +15,7 @@ export const stadionResolvers = {
 
     stadion: async (_: any, { stadionId }: { stadionId: number }) => {
       return prisma.stadion.findUnique({
-        where: { id: stadionId },
+        where: { id: Number(stadionId) },
         include: {
           fields: true,
           facilities: true,
@@ -59,7 +59,7 @@ export const stadionResolvers = {
       { stadionId, name, description, mapUrl }: { stadionId: number, name: string, description?: string, mapUrl: string }
     ) => {
       return await prisma.stadion.update({
-        where: { id: stadionId },
+        where: { id: Number(stadionId) },
         data: {
           name,
           description,
@@ -72,11 +72,11 @@ export const stadionResolvers = {
       _: any,
       { stadionId }: { stadionId: number }
     ) => {
-      await prisma.imageStadion.deleteMany({ where: { id: stadionId } });
-      await prisma.field.deleteMany({ where: { id: stadionId } });
-      await prisma.operatingHour.deleteMany({ where: { id: stadionId } });
+      await prisma.imageStadion.deleteMany({ where: { id: Number(stadionId) } });
+      await prisma.field.deleteMany({ where: { id: Number(stadionId) } });
+      await prisma.operatingHour.deleteMany({ where: { id: Number(stadionId) } });
       return await prisma.stadion.delete({
-        where: { id: stadionId }
+        where: { id: Number(stadionId) }
       })
     }
   }
