@@ -1,5 +1,4 @@
 import { gql } from "graphql-tag"
-import { DateTimeResolver } from "graphql-scalars"
 
 export default gql`
   scalar DateTime
@@ -129,8 +128,12 @@ export default gql`
     id: ID!
     name: String!
     email: String
-    password: String!
     adminLogs: [AdminLog!]
+  }
+
+  type AuthPayload {
+    token: String!
+    admin: Admin!
   }
 
   # QUERY
@@ -142,7 +145,7 @@ export default gql`
     bookings: [Booking!]
     booking(id: ID!): Booking
     facilities: [Facility!]
-    admins: [Admin!]
+    me: Admin
   }
 
   # Mutation
@@ -153,6 +156,8 @@ export default gql`
   }
 
   type Mutation {
+    login(email: String!, password: String!): AuthPayload!
+
     createStadion(
       name: String!
       description: String
