@@ -166,110 +166,110 @@ export default gql`
       name: String!
       description: String
       mapUrl: String!
-    ): Stadion!
+    ) : Stadion!
 
-    updateStadion(
+    updateStadion (
       stadionId: ID!
       name: String!
       description: String
       mapUrl: String!
-    ): Stadion!
+    ) : Stadion!
 
-    deleteStadion(
+    deleteStadion (
       stadionId: ID!
-    ): ID!
+    ) : Stadion!
 
     createField(
       name: String!
       stadionId: Int!
       description: String
       pricePerHour: Int!
-    ): Field!
+    ) : Field!
 
-    updateField(
+    updateField (
       fieldId: ID!
       name: String!
       stadionId: Int!
       description: String
       pricePerHour: Int!
-    ): Field!
+    ) : Field!
 
-    deleteField(
+    deleteField (
       fieldId: ID!
-    ): ID!
+    ) : Field!
 
-    bookingField(
+    bookingField (
       name: String!
       contact: String!
       email: String!
       institution: String
       isAcademic: Boolean
       details: [BookingDetailInput!]!
-    ): Booking!
+    ) : Booking!
 
-    updateStatusBooking(
+    updateStatusBooking (
       bookingCode: String!
       status: BookingStatus!
-    ): Booking!
+    ) : Booking!
 
-    createOperatingHour(
+    createOperatingHour (
       stadionId: Int!
       day: DayofWeek!
       openTime: String!
       closeTime: String!
-    ): OperatingHour!
+    ) : OperatingHour!
 
-    updateOperatingHour(
+    updateOperatingHour (
       operatingHourId: ID!
       stadionId: Int!
       day: DayofWeek!
       openTime: String!
       closeTime: String!
-    ): OperatingHour!
+    ) : OperatingHour!
 
-    deleteOperatingHour(
+    deleteOperatingHour (
       operatingHourId: ID!
-    ): ID!
+    ) : OperatingHour!
 
-    uploadImageStadion(
+    uploadImageStadion (
       stadionId: Int!
       imageUrl: String!
-    ): String!
+    ) : ImageStadion!
 
-    updateImageStadion(
+    updateImageStadion (
       id: ID!
-      imageUrl: String!
-    ): String!
+      imageUrl: String! 
+    ) : ImageStadion!
 
-    deleteImageStadion(
+    deleteImageStadion (
       id: ID!
-    ): ID!
+    ) : ImageStadion!
 
-    uploadImageField(
+    uploadImageField (
       fieldId: Int!
       imageUrl: String!
-    ): String!
+    ) : ImageField!
 
-    updateImageField(
+    updateImageField (
       id: ID!
-      imageUrl: String!
-    ): String!
+      imageUrl: String! 
+    ) : ImageField!
 
-    deleteImageField(
+    deleteImageField (
       id: ID!
-    ): ID!
-
-    createAdminLog(
+    ) : ImageField!
+    
+    createAdminLog (
       adminId: Int!
       action: String!
       targetTable: String
       targetId: String
       description: String
-    ): AdminLog!
+    ) : AdminLog!
 
-    createAdmin(
+    createAdmin (
       name: String!
       password: String!
-    ): String!
+    ) : Admin!
   }
 `
