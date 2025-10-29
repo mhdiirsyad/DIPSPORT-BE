@@ -10,7 +10,7 @@ export const fieldResolvers = {
 
     field: async (_: any, { fieldId }: { fieldId: number }) => {
       return await prisma.field.findUnique({
-        where: { id: fieldId },
+        where: { id: Number(fieldId) },
         include: {
           images: true,
           bookingDetails: true,
@@ -44,7 +44,7 @@ export const fieldResolvers = {
       { fieldId, stadionId, name, description, pricePerHour }: { fieldId: number, stadionId: number, name: string, description?: string, pricePerHour: number }
     ) => {
       return await prisma.field.update({
-        where: { id: fieldId },
+        where: { id: Number(fieldId) },
         data: {
           stadionId,
           name,
@@ -60,7 +60,7 @@ export const fieldResolvers = {
     ) => {
       await prisma.imageField.deleteMany({ where: { id: fieldId } })
       return await prisma.field.delete({
-        where: { id: fieldId }
+        where: { id: Number(fieldId) }
       })
     }
   }
