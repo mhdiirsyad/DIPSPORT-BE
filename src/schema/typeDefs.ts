@@ -82,6 +82,7 @@ export default gql`
     contact: String!
     email: String!
     institution: String
+    suratUrl: String
     isAcademic: Boolean!
     totalPrice: Int!
     status: BookingStatus!
@@ -133,31 +134,28 @@ export default gql`
     admin: Admin!
   }
 
-  # QUERY
   type Query {
     stadions: [Stadion!]
     stadion(stadionId: ID!): Stadion
-    fields: [Field!]
+    fields(stadionId: ID): [Field!]
     field(fieldId: ID!): Field
     bookings: [Booking!]
     booking(bookingCode: String!): Booking
-    facilities: [Facility!]
     me: Admin
-    operatingHours: [OperatingHour!]
-    operatingHour(stadionId: ID!): OperatingHour!
-    adminLogs: [AdminLog!]
-    admins: [Admin!]
   }
 
-  # Input
+  input FieldImageInput {
+    imageUrl: String!
+  }
+
   input BookingDetailInput {
     fieldId: Int!
     bookingDate: DateTime!
     startHour: Int!
-    subtotal: Int!
+    pricePerHour: Int
+    subtotal: Int
   }
 
-  # Mutation
   type Mutation {
     login(email: String!, password: String!): AuthPayload!
 
@@ -165,110 +163,58 @@ export default gql`
       name: String!
       description: String
       mapUrl: String!
-    ) : Stadion!
+    ): Stadion!
 
-    updateStadion (
+    updateStadion(
       stadionId: ID!
       name: String!
       description: String
       mapUrl: String!
-    ) : Stadion!
+    ): Stadion!
 
-    deleteStadion (
+    deleteStadion(
       stadionId: ID!
-    ) : Stadion!
+    ): Stadion!
 
     createField(
-      name: String!
       stadionId: Int!
+      name: String!
       description: String
       pricePerHour: Int!
-    ) : Field!
+      images: [FieldImageInput!]
+    ): Field!
 
-    updateField (
+    updateField(
       fieldId: ID!
-      name: String!
       stadionId: Int!
+      name: String!
       description: String
       pricePerHour: Int!
-    ) : Field!
+      images: [FieldImageInput!]
+    ): Field!
 
-    deleteField (
+    deleteField(
       fieldId: ID!
-    ) : Field!
+    ): Field!
 
-    bookingField (
+    createBooking(
       name: String!
       contact: String!
       email: String!
       institution: String
+      suratUrl: String
       isAcademic: Boolean
       details: [BookingDetailInput!]!
-    ) : Booking!
+    ): Booking!
 
-    updateStatusBooking (
+    updateStatusBooking(
       bookingCode: String!
       status: BookingStatus!
-    ) : Booking!
+    ): Booking!
 
-    createOperatingHour (
-      stadionId: Int!
-      day: DayofWeek!
-      openTime: String!
-      closeTime: String!
-    ) : OperatingHour!
-
-    updateOperatingHour (
-      operatingHourId: ID!
-      stadionId: Int!
-      day: DayofWeek!
-      openTime: String!
-      closeTime: String!
-    ) : OperatingHour!
-
-    deleteOperatingHour (
-      operatingHourId: ID!
-    ) : OperatingHour!
-
-    uploadImageStadion (
-      stadionId: Int!
-      imageUrl: String!
-    ) : ImageStadion!
-
-    updateImageStadion (
-      id: ID!
-      imageUrl: String! 
-    ) : ImageStadion!
-
-    deleteImageStadion (
-      id: ID!
-    ) : ImageStadion!
-
-    uploadImageField (
-      fieldId: Int!
-      imageUrl: String!
-    ) : ImageField!
-
-    updateImageField (
-      id: ID!
-      imageUrl: String! 
-    ) : ImageField!
-
-    deleteImageField (
-      id: ID!
-    ) : ImageField!
-    
-    createAdminLog (
-      adminId: Int!
-      action: String!
-      targetTable: String
-      targetId: String
-      description: String
-    ) : AdminLog!
-
-    createAdmin (
-      name: String!
-      password: String!
-    ) : Admin!
+    updatePaymentStatus(
+      bookingCode: String!
+      paymentStatus: PaymentStatus!
+    ): Booking!
   }
 `
