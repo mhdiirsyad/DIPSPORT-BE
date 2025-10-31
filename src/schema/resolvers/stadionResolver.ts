@@ -1,4 +1,5 @@
 import type { PrismaClient } from "@prisma/client"
+import { requireAuth } from "../../lib/context.js"
 
 interface StadionArgs {
   stadionId: number
@@ -20,6 +21,11 @@ interface DeleteStadionArgs {
 
 type ResolverContext = {
   prisma: PrismaClient
+  admin: {
+    adminId: number
+    email: string | null
+    name: string
+  } | null
 }
 
 export const stadionResolvers = {
@@ -47,7 +53,9 @@ export const stadionResolvers = {
     },
   },
   Mutation: {
-    createStadion: async (_: unknown, args: CreateStadionArgs, { prisma }: ResolverContext) => {
+    createStadion: async (_: unknown, args: CreateStadionArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
+
       return prisma.stadion.create({
         data: {
           name: args.name,
@@ -62,7 +70,9 @@ export const stadionResolvers = {
         },
       })
     },
-    updateStadion: async (_: unknown, args: UpdateStadionArgs, { prisma }: ResolverContext) => {
+    updateStadion: async (_: unknown, args: UpdateStadionArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
+
       const { stadionId, name, description, mapUrl } = args
 
       return prisma.stadion.update({
@@ -80,7 +90,9 @@ export const stadionResolvers = {
         },
       })
     },
-    deleteStadion: async (_: unknown, { stadionId }: DeleteStadionArgs, { prisma }: ResolverContext) => {
+    deleteStadion: async (_: unknown, { stadionId }: DeleteStadionArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
+
       const id = Number(stadionId)
 
       return prisma.$transaction(async (tx) => {
