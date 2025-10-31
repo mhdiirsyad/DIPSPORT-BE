@@ -1,67 +1,136 @@
-import { prisma } from "../../lib/prisma.js";
+import type { PrismaClient } from "@prisma/client"
+import { requireAuth } from "../../lib/context.js"
+
+interface FieldArgs {
+  fieldId: number
+}
+
+interface FieldsArgs {
+  stadionId?: number
+}
+
+interface CreateFieldArgs {
+  stadionId: number
+  name: string
+  description?: string
+  pricePerHour: number
+  images?: FieldImageInput[]
+}
+
+interface UpdateFieldArgs extends CreateFieldArgs {
+  fieldId: number
+}
+
+interface DeleteFieldArgs {
+  fieldId: number
+}
+
+interface FieldImageInput {
+  imageUrl: string
+}
+
+type ResolverContext = {
+  prisma: PrismaClient
+  admin: {
+    adminId: number
+    email: string | null
+    name: string
+  } | null
+}
 
 export const fieldResolvers = {
   Query: {
-    fields: async () => {
-      return await prisma.field.findMany({
-        include: { images: true, bookingDetails: true }
-      });
+    fields: async (_: unknown, args: FieldsArgs, { prisma }: ResolverContext) => {
+      return prisma.field.findMany({
+        where: args.stadionId ? { stadionId: Number(args.stadionId) } : undefined,
+        include: {
+          images: true,
+          bookingDetails: true,
+        },
+      })
     },
-
-    field: async (_: any, { fieldId }: { fieldId: number }) => {
-      return await prisma.field.findUnique({
+    field: async (_: unknown, { fieldId }: FieldArgs, { prisma }: ResolverContext) => {
+      return prisma.field.findUnique({
         where: { id: Number(fieldId) },
         include: {
           images: true,
           bookingDetails: true,
-        }
+        },
       })
-    }
+    },
   },
-
   Mutation: {
-    createField: async (
-      _: any,
-      { stadionId, name, description, pricePerHour, images }: { stadionId: number, name: string, description?: string, pricePerHour: number, images?: { imageUrl: string }[] }
-    ) => {
-      return await prisma.field.create({
+    createField: async (_: unknown, args: CreateFieldArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
+
+      const { stadionId, name, description, pricePerHour, images } = args
+
+      return prisma.field.create({
         data: {
-          stadionId,
+          stadionId: Number(stadionId),
           name,
           description,
           pricePerHour,
-          images: images ? {
-            create: images.map((i) => ({
-              imageUrl: i.imageUrl
-            }))
-          } : undefined
-        }
+          images: images
+            ? {
+                create: images.map((image) => ({
+                  imageUrl: image.imageUrl,
+                })),
+              }
+            : undefined,
+        },
+        include: {
+          images: true,
+          bookingDetails: true,
+        },
       })
     },
+    updateField: async (_: unknown, args: UpdateFieldArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
 
-    updateField: async (
-      _: any,
-      { fieldId, stadionId, name, description, pricePerHour }: { fieldId: number, stadionId: number, name: string, description?: string, pricePerHour: number }
-    ) => {
-      return await prisma.field.update({
+      const { fieldId, stadionId, name, description, pricePerHour, images } = args
+
+      return prisma.field.update({
         where: { id: Number(fieldId) },
         data: {
-          stadionId,
+          stadionId: Number(stadionId),
           name,
           description,
           pricePerHour,
-        }
+          ...(images
+            ? {
+                images: {
+                  deleteMany: {},
+                  create: images.map((image) => ({
+                    imageUrl: image.imageUrl,
+                  })),
+                },
+              }
+            : {}),
+        },
+        include: {
+          images: true,
+          bookingDetails: true,
+        },
       })
     },
+    deleteField: async (_: unknown, { fieldId }: DeleteFieldArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
 
-    deleteField: async (
-      _: any,
-      { fieldId }: { fieldId: number }
-    ) => {
-      await prisma.imageField.deleteMany({ where: { id: Number(fieldId) } }) // perbaikan disini cuman namabahin (Number(fieldId))
-      return await prisma.field.delete({
-        where: { id: Number(fieldId) }
+      const id = Number(fieldId)
+
+      return prisma.$transaction(async (tx) => {
+        await tx.bookingDetail.deleteMany({ where: { fieldId: id } })
+        await tx.imageField.deleteMany({ where: { fieldId: id } })
+
+        return tx.field.delete({
+          where: { id },
+          include: {
+            images: true,
+            bookingDetails: true,
+          },
+        })
       })
-    }
-  }
+    },
+  },
 }

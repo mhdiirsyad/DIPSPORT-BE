@@ -1,20 +1,46 @@
-import { prisma } from "../../lib/prisma.js"
-import { GraphQLContext, requireAuth } from "../../lib/context.js"
+import type { PrismaClient } from "@prisma/client"
+import { requireAuth } from "../../lib/context.js"
+
+interface StadionArgs {
+  stadionId: number
+}
+
+interface CreateStadionArgs {
+  name: string
+  description?: string
+  mapUrl: string
+}
+
+interface UpdateStadionArgs extends CreateStadionArgs {
+  stadionId: number
+}
+
+interface DeleteStadionArgs {
+  stadionId: number
+}
+
+type ResolverContext = {
+  prisma: PrismaClient
+  admin: {
+    adminId: number
+    email: string | null
+    name: string
+  } | null
+}
 
 export const stadionResolvers = {
   Query: {
-    stadions: async () => {
+    stadions: async (_: unknown, __: unknown, { prisma }: ResolverContext) => {
       return prisma.stadion.findMany({
         include: {
           fields: true,
           facilities: true,
           images: true,
           operatingHours: true,
-        }
+        },
       })
     },
-
-    stadion: async (_: any, { stadionId }: { stadionId: number }) => {
+    stadion: async (_: unknown, { stadionId }: StadionArgs, { prisma }: ResolverContext) => {
       return prisma.stadion.findUnique({
         where: { id: Number(stadionId) },
         include: {
@@ -22,69 +48,69 @@ export const stadionResolvers = {
           facilities: true,
           images: true,
           operatingHours: true,
-        }
-      })
-    }
-  },
-
-  Mutation: {
-    createStadion: async (
-      _: any,
-      { name, description, mapUrl, facilities, images } : { name: string, description?: string, mapUrl: string, facilities?: { facilityId: number }[], images?: { imageUrl: string }[] },
-      context: GraphQLContext,
-    ) => {
-      const admin = requireAuth(context.admin)
-      return await prisma.stadion.create({
-        data: {
-          name,
-          description,
-          mapUrl,
-          facilities: facilities ? {
-            create: facilities.map((f) => ({
-              facilityId: f.facilityId
-            }))
-          } : undefined,
-          images: images ? {
-            create: images.map((i) => ({
-              imageUrl: i.imageUrl
-            }))
-          } : undefined,
         },
-        include: {
-          facilities: {include: {Facility: true}},
-          images: true,
-        }
       })
     },
+  },
+  Mutation: {
+    createStadion: async (_: unknown, args: CreateStadionArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
 
-    updateStadion: async (
-      _: any,
-      { stadionId, name, description, mapUrl }: { stadionId: number, name: string, description?: string, mapUrl: string },
-      context: GraphQLContext,
-    ) => {
-      const admin = requireAuth(context.admin)
-      return await prisma.stadion.update({
+      return prisma.stadion.create({
+        data: {
+          name: args.name,
+          description: args.description,
+          mapUrl: args.mapUrl,
+        },
+        include: {
+          fields: true,
+          facilities: true,
+          images: true,
+          operatingHours: true,
+        },
+      })
+    },
+    updateStadion: async (_: unknown, args: UpdateStadionArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
+
+      const { stadionId, name, description, mapUrl } = args
+
+      return prisma.stadion.update({
         where: { id: Number(stadionId) },
         data: {
           name,
           description,
           mapUrl,
-        }
+        },
+        include: {
+          fields: true,
+          facilities: true,
+          images: true,
+          operatingHours: true,
+        },
       })
     },
+    deleteStadion: async (_: unknown, { stadionId }: DeleteStadionArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
 
-    deleteStadion: async (
-      _: any,
-      { stadionId }: { stadionId: number },
-      context: GraphQLContext
-    ) => {
-      const admin = requireAuth(context.admin)
-      await prisma.imageStadion.deleteMany({ where: { id: Number(stadionId) } });
-      await prisma.field.deleteMany({ where: { id: Number(stadionId) } });
-      await prisma.operatingHour.deleteMany({ where: { id: Number(stadionId) } });
-      return await prisma.stadion.delete({
-        where: { id: Number(stadionId) }
+      const id = Number(stadionId)
+
+      return prisma.$transaction(async (tx) => {
+        await tx.stadionFacility.deleteMany({ where: { stadionId: id } })
+        await tx.imageStadion.deleteMany({ where: { stadionId: id } })
+        await tx.operatingHour.deleteMany({ where: { stadionId: id } })
+        await tx.field.deleteMany({ where: { stadionId: id } })
+
+        return tx.stadion.delete({
+          where: { id },
+          include: {
+            fields: true,
+            facilities: true,
+            images: true,
+            operatingHours: true,
+          },
+        })
       })
-    }
-  }
+    },
+  },
 }
