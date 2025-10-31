@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma.js"
+import { GraphQLContext, requireAuth } from "../../lib/context.js"
 
 export const stadionResolvers = {
   Query: {
@@ -29,8 +30,10 @@ export const stadionResolvers = {
   Mutation: {
     createStadion: async (
       _: any,
-      { name, description, mapUrl, facilities, images } : { name: string, description?: string, mapUrl: string, facilities?: { facilityId: number }[], images?: { imageUrl: string }[] }
+      { name, description, mapUrl, facilities, images } : { name: string, description?: string, mapUrl: string, facilities?: { facilityId: number }[], images?: { imageUrl: string }[] },
+      context: GraphQLContext,
     ) => {
+      const admin = requireAuth(context.admin)
       return await prisma.stadion.create({
         data: {
           name,
@@ -56,8 +59,10 @@ export const stadionResolvers = {
 
     updateStadion: async (
       _: any,
-      { stadionId, name, description, mapUrl }: { stadionId: number, name: string, description?: string, mapUrl: string }
+      { stadionId, name, description, mapUrl }: { stadionId: number, name: string, description?: string, mapUrl: string },
+      context: GraphQLContext,
     ) => {
+      const admin = requireAuth(context.admin)
       return await prisma.stadion.update({
         where: { id: Number(stadionId) },
         data: {
@@ -70,8 +75,10 @@ export const stadionResolvers = {
 
     deleteStadion: async (
       _: any,
-      { stadionId }: { stadionId: number }
+      { stadionId }: { stadionId: number },
+      context: GraphQLContext
     ) => {
+      const admin = requireAuth(context.admin)
       await prisma.imageStadion.deleteMany({ where: { id: Number(stadionId) } });
       await prisma.field.deleteMany({ where: { id: Number(stadionId) } });
       await prisma.operatingHour.deleteMany({ where: { id: Number(stadionId) } });

@@ -82,7 +82,6 @@ export default gql`
     contact: String!
     email: String!
     institution: String
-    suratUrl: String
     isAcademic: Boolean!
     totalPrice: Int!
     status: BookingStatus!
