@@ -83,7 +83,6 @@ export default gql`
     email: String!
     institution: String
     isAcademic: Boolean!
-    suratUrl: String
     totalPrice: Int!
     status: BookingStatus!
     paymentStatus: PaymentStatus!
@@ -126,8 +125,12 @@ export default gql`
     id: ID!
     name: String!
     email: String
-    password: String!
     adminLogs: [AdminLog!]
+  }
+
+  type AuthPayload {
+    token: String!
+    admin: Admin!
   }
 
   # QUERY
@@ -139,8 +142,9 @@ export default gql`
     bookings: [Booking!]
     booking(bookingCode: String!): Booking
     facilities: [Facility!]
+    me: Admin
     operatingHours: [OperatingHour!]
-    operatingHour(stadionId: ID!) : OperatingHour!
+    operatingHour(stadionId: ID!): OperatingHour!
     adminLogs: [AdminLog!]
     admins: [Admin!]
   }
@@ -153,31 +157,10 @@ export default gql`
     subtotal: Int!
   }
 
-  #Enum 
-  enum BookingStatus {
-    PENDING
-    APPROVED
-    CANCELLED
-    DONE
-  }
-
-  enum DayofWeek {
-    SENIN
-    SELASA
-    RABU
-    KAMIS
-    JUMAT
-    SABTU
-    MINGGU
-  }
-
-  enum PaymentStatus {
-    UNPAID
-    PAID
-  }
-
   # Mutation
   type Mutation {
+    login(email: String!, password: String!): AuthPayload!
+
     createStadion(
       name: String!
       description: String
@@ -196,7 +179,6 @@ export default gql`
     ) : Stadion!
 
     createField(
-      id: ID!
       name: String!
       stadionId: Int!
       description: String
@@ -246,12 +228,12 @@ export default gql`
 
     deleteOperatingHour (
       operatingHourId: ID!
-    ) : operatingHour!
+    ) : OperatingHour!
 
     uploadImageStadion (
       stadionId: Int!
       imageUrl: String!
-    ) : imageStadion!
+    ) : ImageStadion!
 
     updateImageStadion (
       id: ID!
@@ -260,21 +242,21 @@ export default gql`
 
     deleteImageStadion (
       id: ID!
-    ) : imageStadion!
+    ) : ImageStadion!
 
     uploadImageField (
       fieldId: Int!
       imageUrl: String!
-    ) : imageField!
+    ) : ImageField!
 
     updateImageField (
       id: ID!
       imageUrl: String! 
-    ) : imageField!
+    ) : ImageField!
 
     deleteImageField (
       id: ID!
-    ) : imageField!
+    ) : ImageField!
     
     createAdminLog (
       adminId: Int!
