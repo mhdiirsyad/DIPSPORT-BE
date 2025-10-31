@@ -1,101 +1,159 @@
-import { BookingDetail, BookingStatus, PaymentStatus } from "@prisma/client";
-import { prisma } from "../../lib/prisma";
-import { v4 as uuidv4 } from "uuid";
-import dayjs from "dayjs";
+import type { BookingStatus, PaymentStatus, PrismaClient } from "@prisma/client"
+import dayjs from "dayjs"
+import { v4 as uuidv4 } from "uuid"
+import { requireAuth } from "../../lib/context.js"
+
+interface BookingArgs {
+  bookingCode: string
+}
+
+interface CreateBookingArgs {
+  name: string
+  contact: string
+  email: string
+  institution?: string
+  suratUrl?: string
+  isAcademic?: boolean
+  details: BookingDetailInput[]
+}
+
+interface UpdateStatusArgs {
+  bookingCode: string
+  status: BookingStatus
+}
+
+interface UpdatePaymentArgs {
+  bookingCode: string
+  paymentStatus: PaymentStatus
+}
+
+interface BookingDetailInput {
+  fieldId: number
+  bookingDate: Date | string
+  startHour: number
+  pricePerHour?: number
+  subtotal?: number
+}
+
+type ResolverContext = {
+  prisma: PrismaClient
+  admin: {
+    adminId: number
+    email: string | null
+    name: string
+  } | null
+}
 
 export const bookingResolvers = {
   Query: {
-    bookings: async () => {
-      return await prisma.booking.findMany({
+    bookings: async (_: unknown, __: unknown, { prisma }: ResolverContext) => {
+      return prisma.booking.findMany({
         include: {
           details: true,
-        }
+        },
+        orderBy: { createdAt: "desc" },
       })
     },
-
-    booking: async (_: any, { bookingCode }: { bookingCode: string }) => {
-      return await prisma.booking.findUnique({
-        where: { bookingCode: bookingCode },
-        include: { details: true }
+    booking: async (_: unknown, { bookingCode }: BookingArgs, { prisma }: ResolverContext) => {
+      return prisma.booking.findUnique({
+        where: { bookingCode },
+        include: {
+          details: true,
+        },
       })
     },
   },
-
   Mutation: {
-    createBooking: async (
-      _: any,
-      { name, contact, email, institution, suratUrl = '', isAcademic = false, details }: { name: string, contact: string, email: string, institution?: string, suratUrl?: string, isAcademic?: boolean, details: { details: BookingDetail }[] }
-    ) => {
-      let totalPrice = 0;
-      const bookingCode = `DS-${uuidv4().split('-')[0].toUpperCase()}`
+    createBooking: async (_: unknown, args: CreateBookingArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
 
-      for (const d of details) {
-        const bookingDate = dayjs(d.details.bookingDate);
-        const today = dayjs().startOf('day')
+      const { name, contact, email, institution, suratUrl, isAcademic = false, details } = args
 
-        if (bookingDate.isBefore(today.add(1, 'day'))) {
-          throw new Error("Maksimal Booking H-1")
-        }
+      if (!isAcademic && !suratUrl) {
+        throw new Error("Surat pengantar diperlukan untuk booking non-akademik")
       }
 
-      if (!isAcademic) {
-        if (!suratUrl) throw new Error("Surat pengantar diperlukan")
-        for (const d of details) {
+      const bookingCode = `DS-${uuidv4().split("-")[0]?.toUpperCase()}`
+      const today = dayjs().startOf("day")
+
+      const detailPayload = await Promise.all(
+        details.map(async (item) => {
+          const bookingDate = dayjs(item.bookingDate)
+
+          if (bookingDate.isBefore(today.add(1, "day"))) {
+            throw new Error("Maksimal booking harus dilakukan minimal H-1")
+          }
+
           const field = await prisma.field.findUnique({
-            where: { id: d.details.fieldId },
+            where: { id: item.fieldId },
             select: { pricePerHour: true },
           })
 
           if (!field) {
-            throw new Error("Field not found")
+            throw new Error("Field tidak ditemukan")
           }
 
-          totalPrice += field.pricePerHour
-        }
-      }
-      return await prisma.booking.create({
+          const pricePerHour = item.pricePerHour ?? field.pricePerHour
+          const subtotal = item.subtotal ?? pricePerHour
+
+          return {
+            fieldId: item.fieldId,
+            bookingDate: bookingDate.toDate(),
+            startHour: item.startHour,
+            pricePerHour,
+            subtotal,
+          }
+        })
+      )
+
+      const totalPrice = isAcademic ? 0 : detailPayload.reduce((acc, curr) => acc + curr.subtotal, 0)
+
+      return prisma.booking.create({
         data: {
           bookingCode,
           name,
           contact,
           email,
           institution,
-          isAcademic,
           suratUrl,
-          totalPrice: isAcademic ? 0 : totalPrice,
-          details: details ? {
-            create: details.map((item) => ({
-              fieldId: item.details.fieldId,
-              bookingDate: item.details.bookingDate,
-              startHour: item.details.startHour,
-              pricePerHour: item.details.pricePerHour,
-              subtotal: item.details.subtotal,
-            }))
-          } : undefined
-        }
+          isAcademic,
+          totalPrice,
+          status: "PENDING",
+          paymentStatus: "UNPAID",
+          details: {
+            create: detailPayload,
+          },
+        },
+        include: {
+          details: true,
+        },
       })
     },
+    updateStatusBooking: async (_: unknown, { bookingCode, status }: UpdateStatusArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
 
-    updateStatusBooking: async (
-      _: any,
-      { status, bookingCode }: { status: BookingStatus, bookingCode: string }
-    ) => {
-      return await prisma.booking.update({
-        where: { bookingCode: bookingCode },
+      return prisma.booking.update({
+        where: { bookingCode },
         data: {
-          status: status,
-        }
+          status,
+        },
+        include: {
+          details: true,
+        },
       })
     },
+    updatePaymentStatus: async (_: unknown, { bookingCode, paymentStatus }: UpdatePaymentArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
 
-    updatePaymentStatus: async (
-      _: any,
-      { payment, bookingCode }: { payment: PaymentStatus, bookingCode: string }
-    ) => {
-      return await prisma.booking.update({
-        where: { bookingCode: bookingCode },
-        data: { paymentStatus: payment },
+      return prisma.booking.update({
+        where: { bookingCode },
+        data: {
+          paymentStatus,
+        },
+        include: {
+          details: true,
+        },
       })
-    }
-  }
+    },
+  },
 }
