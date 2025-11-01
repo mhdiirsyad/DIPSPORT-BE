@@ -1,5 +1,6 @@
 import type { PrismaClient } from "@prisma/client"
 import { requireAuth } from "../../lib/context.js"
+import { fieldCreateSchema, fieldUpdateSchema } from "./validators/fieldSchema.js"
 
 interface FieldArgs {
   fieldId: number
@@ -62,12 +63,12 @@ export const fieldResolvers = {
   Mutation: {
     createField: async (_: unknown, args: CreateFieldArgs, { prisma, admin }: ResolverContext) => {
       requireAuth(admin)
-
-      const { stadionId, name, description, pricePerHour, images } = args
+      const validated = await fieldCreateSchema.validate(args, { abortEarly: false })
+      const { stadionId, name, description, pricePerHour, images } = validated
 
       return prisma.field.create({
         data: {
-          stadionId: Number(stadionId),
+          stadionId,
           name,
           description,
           pricePerHour,
@@ -87,13 +88,13 @@ export const fieldResolvers = {
     },
     updateField: async (_: unknown, args: UpdateFieldArgs, { prisma, admin }: ResolverContext) => {
       requireAuth(admin)
-
-      const { fieldId, stadionId, name, description, pricePerHour, images } = args
+      const validated = await fieldUpdateSchema.validate(args, { abortEarly: false })
+      const { fieldId, stadionId, name, description, pricePerHour, images } = validated
 
       return prisma.field.update({
-        where: { id: Number(fieldId) },
+        where: { id: fieldId },
         data: {
-          stadionId: Number(stadionId),
+          stadionId,
           name,
           description,
           pricePerHour,
