@@ -141,6 +141,7 @@ export default gql`
     field(fieldId: ID!): Field
     bookings: [Booking!]
     booking(bookingCode: String!): Booking
+    operatingHoursByStadion(stadionId: Int!): [OperatingHour]
     me: Admin
   }
 
@@ -216,5 +217,24 @@ export default gql`
       bookingCode: String!
       paymentStatus: PaymentStatus!
     ): Booking!
+
+    createOperatingHour(
+      stadionId: Int! 
+      day: DayofWeek!
+      openTime: DateTime!
+      closeTime: DateTime!
+    ): OperatingHour
+
+    updateOperatingHour(
+      id: Int!
+      stadionId: Int!
+      day: DayofWeek!
+      openTime: DateTime!
+      closeTime: DateTime!
+    ): OperatingHour
+
+    deleteOperatingHour(
+      id: Int!
+    ): OperatingHour
   }
 `

@@ -6,6 +6,7 @@ import { requireAuth } from "../../lib/context.js"
 import { stadionResolvers } from "./stadionResolver.js"
 import { fieldResolvers } from "./fieldResolver.js"
 import { bookingResolvers } from "./bookingResolver.js"
+import { operatingHourResolvers } from "./operatingHourResolver.js"
 
 type ResolverContext = {
   prisma: PrismaClient
@@ -21,6 +22,7 @@ const resolvers = {
     ...stadionResolvers.Query,
     ...fieldResolvers.Query,
     ...bookingResolvers.Query,
+    ...operatingHourResolvers.Query,
     me: async (_: unknown, __: unknown, { prisma, admin }: ResolverContext) => {
       const currentAdmin = requireAuth(admin)
 
@@ -33,6 +35,7 @@ const resolvers = {
     ...stadionResolvers.Mutation,
     ...fieldResolvers.Mutation,
     ...bookingResolvers.Mutation,
+    ...operatingHourResolvers.Mutation,
     login: async (_: unknown, { email, password }: { email: string; password: string }, { prisma }: ResolverContext) => {
       const admin = await prisma.admin.findUnique({
         where: { email },
