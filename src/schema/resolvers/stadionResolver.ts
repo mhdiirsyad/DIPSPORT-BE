@@ -1,5 +1,6 @@
 import type { PrismaClient } from "@prisma/client"
 import { requireAuth } from "../../lib/context.js"
+import { stadionCreateSchema, stadionUpdateSchema } from "./validators/stadionSchema.js"
 
 interface StadionArgs {
   stadionId: number
@@ -55,12 +56,13 @@ export const stadionResolvers = {
   Mutation: {
     createStadion: async (_: unknown, args: CreateStadionArgs, { prisma, admin }: ResolverContext) => {
       requireAuth(admin)
+      const validated = await stadionCreateSchema.validate(args, { abortEarly: false })
 
       return prisma.stadion.create({
         data: {
-          name: args.name,
-          description: args.description,
-          mapUrl: args.mapUrl,
+          name: validated.name,
+          description: validated.description,
+          mapUrl: validated.mapUrl,
         },
         include: {
           fields: true,
@@ -72,8 +74,8 @@ export const stadionResolvers = {
     },
     updateStadion: async (_: unknown, args: UpdateStadionArgs, { prisma, admin }: ResolverContext) => {
       requireAuth(admin)
-
-      const { stadionId, name, description, mapUrl } = args
+      const validated = await stadionUpdateSchema.validate(args, { abortEarly: false })
+      const { stadionId, name, description, mapUrl } = validated
 
       return prisma.stadion.update({
         where: { id: Number(stadionId) },
