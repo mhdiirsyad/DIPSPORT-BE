@@ -37,11 +37,10 @@ export const fieldCreateSchema = yup
   })
   .strict(true)
 
-export const fieldUpdateSchema = fieldCreateSchema.shape({
-  fieldId: yup
-    .number()
-    .typeError("fieldId harus berupa angka")
-    .integer("fieldId harus bilangan bulat")
-    .positive("fieldId harus lebih besar dari 0")
+export const fieldUpdateSchema = fieldCreateSchema.shape({ 
+  fieldId: yup 
+    .string()
+    .trim()
+    .matches(/^\d+$/, "fieldId harus berupa angka")
     .required("fieldId wajib diisi"),
 })

@@ -2,12 +2,14 @@ import type { PrismaClient } from "@prisma/client"
 import { requireAuth } from "../../lib/context.js"
 import { fieldCreateSchema, fieldUpdateSchema } from "./validators/fieldSchema.js"
 
+type ID = number | string
+
 interface FieldArgs {
-  fieldId: number
+  fieldId: ID
 }
 
 interface FieldsArgs {
-  stadionId?: number
+  stadionId?: ID
 }
 
 interface CreateFieldArgs {
@@ -19,11 +21,11 @@ interface CreateFieldArgs {
 }
 
 interface UpdateFieldArgs extends CreateFieldArgs {
-  fieldId: number
+  fieldId: ID
 }
 
 interface DeleteFieldArgs {
-  fieldId: number
+  fieldId: ID
 }
 
 interface FieldImageInput {
@@ -92,7 +94,7 @@ export const fieldResolvers = {
       const { fieldId, stadionId, name, description, pricePerHour, images } = validated
 
       return prisma.field.update({
-        where: { id: fieldId },
+        where: { id: Number(fieldId) },
         data: {
           stadionId,
           name,

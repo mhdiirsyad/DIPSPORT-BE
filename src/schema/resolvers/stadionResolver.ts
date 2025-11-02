@@ -2,8 +2,10 @@ import type { PrismaClient } from "@prisma/client"
 import { requireAuth } from "../../lib/context.js"
 import { stadionCreateSchema, stadionUpdateSchema } from "./validators/stadionSchema.js"
 
+type ID = number | string
+
 interface StadionArgs {
-  stadionId: number
+  stadionId: ID
 }
 
 interface CreateStadionArgs {
@@ -13,11 +15,11 @@ interface CreateStadionArgs {
 }
 
 interface UpdateStadionArgs extends CreateStadionArgs {
-  stadionId: number
+  stadionId: ID
 }
 
 interface DeleteStadionArgs {
-  stadionId: number
+  stadionId: ID
 }
 
 type ResolverContext = {

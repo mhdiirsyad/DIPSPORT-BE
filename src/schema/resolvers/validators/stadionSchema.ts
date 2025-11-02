@@ -20,9 +20,8 @@ export const stadionCreateSchema = yup
 
 export const stadionUpdateSchema = stadionCreateSchema.shape({
   stadionId: yup
-    .number()
-    .typeError("stadionId harus berupa angka")
-    .integer("stadionId harus bilangan bulat")
-    .positive("stadionId harus lebih besar dari 0")
+    .string()
+    .trim()
+    .matches(/^\d+$/, "stadionId harus berupa angka")
     .required("stadionId wajib diisi"),
 })
