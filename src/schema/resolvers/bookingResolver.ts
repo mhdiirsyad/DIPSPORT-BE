@@ -2,6 +2,7 @@ import type { BookingStatus, PaymentStatus, PrismaClient } from "@prisma/client"
 import dayjs from "dayjs"
 import { v4 as uuidv4 } from "uuid"
 import { requireAuth } from "../../lib/context.js"
+import { createBookingSchema, updateBookingSchema, updatePaymenStatusSchema, } from "./validators/bookingSchema"
 
 interface BookingArgs {
   bookingCode: string
@@ -67,10 +68,15 @@ export const bookingResolvers = {
     createBooking: async (_: unknown, args: CreateBookingArgs, { prisma, admin }: ResolverContext) => {
       requireAuth(admin)
 
-      const { name, contact, email, institution, suratUrl, isAcademic = false, details } = args
+      const validated = await createBookingSchema.validate(args, { abortEarly: false })
+      const { name, contact, email, institution, suratUrl, isAcademic = false, details } = validated
 
-      if (!isAcademic && !suratUrl) {
-        throw new Error("Surat pengantar diperlukan untuk booking non-akademik")
+      if (!details || !Array.isArray(details) || details.length === 0) {
+        throw new Error("Detail booking harus diisi")
+      }
+
+      if (isAcademic && !suratUrl) {
+        throw new Error("Surat pengantar diperlukan untuk booking akademik")
       }
 
       const bookingCode = `DS-${uuidv4().split("-")[0]?.toUpperCase()}`
@@ -129,9 +135,11 @@ export const bookingResolvers = {
         },
       })
     },
-    updateStatusBooking: async (_: unknown, { bookingCode, status }: UpdateStatusArgs, { prisma, admin }: ResolverContext) => {
+    updateStatusBooking: async (_: unknown, args: UpdateStatusArgs, { prisma, admin }: ResolverContext) => {
       requireAuth(admin)
 
+      const validated = await updateBookingSchema.validate(args, { abortEarly: false })
+      const { bookingCode, status } = validated
       return prisma.booking.update({
         where: { bookingCode },
         data: {
@@ -142,9 +150,11 @@ export const bookingResolvers = {
         },
       })
     },
-    updatePaymentStatus: async (_: unknown, { bookingCode, paymentStatus }: UpdatePaymentArgs, { prisma, admin }: ResolverContext) => {
+    updatePaymentStatus: async (_: unknown, args: UpdatePaymentArgs, { prisma, admin }: ResolverContext) => {
       requireAuth(admin)
 
+      const validate = await updatePaymenStatusSchema.validate(args, { abortEarly: false })
+      const { bookingCode, paymentStatus } = validate
       return prisma.booking.update({
         where: { bookingCode },
         data: {
