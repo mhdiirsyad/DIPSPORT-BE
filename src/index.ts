@@ -2,6 +2,7 @@ import "dotenv/config"
 import express from "express"
 import cors from "cors"
 import { ApolloServer } from "@apollo/server"
+import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs"
 import { expressMiddleware } from "@as-integrations/express5"
 import bodyParser from "body-parser"
 import typeDefs from "./schema/typeDefs.js"
@@ -31,6 +32,7 @@ app.use(
 app.use(
   "/graphql",
   bodyParser.json(),
+  graphqlUploadExpress(),
   expressMiddleware(server, {
     context: async ({ req }) => buildContext(req),
   })

@@ -7,6 +7,7 @@ import { stadionResolvers } from "./stadionResolver.js"
 import { fieldResolvers } from "./fieldResolver.js"
 import { bookingResolvers } from "./bookingResolver.js"
 import { operatingHourResolvers } from "./operatingHourResolver.js"
+import { fieldImageResolvers, stadionImageResolvers } from "./uploadToMinioResolver.js"
 
 type ResolverContext = {
   prisma: PrismaClient
@@ -36,6 +37,8 @@ const resolvers = {
     ...fieldResolvers.Mutation,
     ...bookingResolvers.Mutation,
     ...operatingHourResolvers.Mutation,
+    ...stadionImageResolvers.Mutation,
+    ...fieldImageResolvers.Mutation,
     login: async (_: unknown, { email, password }: { email: string; password: string }, { prisma }: ResolverContext) => {
       const admin = await prisma.admin.findUnique({
         where: { email },

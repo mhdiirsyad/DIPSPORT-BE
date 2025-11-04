@@ -2,6 +2,7 @@ import { gql } from "graphql-tag"
 
 export default gql`
   scalar DateTime
+  scalar Upload
 
   enum BookingStatus {
     PENDING
@@ -134,6 +135,11 @@ export default gql`
     admin: Admin!
   }
 
+  type uploadResponse {
+    count: Int!
+    imageUrls: [String!]!
+  }
+
   type Query {
     stadions: [Stadion!]
     stadion(stadionId: ID!): Stadion
@@ -236,5 +242,10 @@ export default gql`
     deleteOperatingHour(
       id: Int!
     ): OperatingHour
+
+    uploadStadionImages(
+      stadionId: Int!
+      imageUrl: [Upload!]!
+    ): uploadResponse!
   }
 `

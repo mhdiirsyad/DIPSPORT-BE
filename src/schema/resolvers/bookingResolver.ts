@@ -2,7 +2,7 @@ import type { BookingStatus, PaymentStatus, PrismaClient } from "@prisma/client"
 import dayjs from "dayjs"
 import { v4 as uuidv4 } from "uuid"
 import { requireAuth } from "../../lib/context.js"
-import { createBookingSchema, updateBookingSchema, updatePaymenStatusSchema } from "./validators/bookingSchema.js"
+import { createBookingSchema, updateBookingSchema, updatePaymenStatusSchema, } from "./validators/bookingSchema.js"
 
 interface BookingArgs {
   bookingCode: string
