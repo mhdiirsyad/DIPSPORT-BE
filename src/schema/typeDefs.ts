@@ -159,6 +159,7 @@ export default gql`
 
   type Mutation {
     login(email: String!, password: String!): AuthPayload!
+    logout: Boolean!
 
     createStadion(
       name: String!
@@ -227,7 +228,6 @@ export default gql`
 
     updateOperatingHour(
       id: Int!
-      stadionId: Int!
       day: DayofWeek!
       openTime: DateTime!
       closeTime: DateTime!
