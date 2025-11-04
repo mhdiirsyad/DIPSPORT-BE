@@ -1,7 +1,7 @@
 import path from "path"
 import {lookup} from "es-mime-types"
 import {v4 as uuidv4} from "uuid"
-import { BUCKET, minioClient, PUBLIC_URL } from "./minioClient"
+import { BUCKET, minioClient, PUBLIC_URL } from "./minioClient.js"
 import type { FileUpload } from 'graphql-upload/processRequest.mjs';
 
 export async function uploadToMinio({file} : {file: Promise<FileUpload>}, folder: string) {

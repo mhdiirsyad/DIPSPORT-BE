@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 import type { FileUpload } from 'graphql-upload/processRequest.mjs';
-import { requireAuth } from "../../lib/context";
-import { uploadToMinio } from "../../lib/uploadImageMinio";
+import { requireAuth } from "../../lib/context.js";
+import { uploadToMinio } from "../../lib/uploadImageMinio.js";
 
 
 type ResolverContext = {
