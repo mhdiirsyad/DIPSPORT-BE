@@ -18,8 +18,12 @@ await server.start()
 
 app.use(
   "/graphql",
-  bodyParser.json(),
-  graphqlUploadExpress(),
+  graphqlUploadExpress({
+    maxFileSize: 50 * 1024 * 1024,
+    maxFiles: 10,
+  }),
+  bodyParser.json({limit: '50mb'}),
+  express.urlencoded({limit: '50mb'}),
   expressMiddleware(server, {
     context: async ({ req }) => buildContext(req),
   })

@@ -245,7 +245,12 @@ export default gql`
 
     uploadStadionImages(
       stadionId: Int!
-      imageUrl: [upload!]!
+      files: [Upload!]!
+    ): uploadResponse!
+
+    uploadFieldImages(
+      stadionId: Int!
+      files: [Upload!]!
     ): uploadResponse!
   }
 `
