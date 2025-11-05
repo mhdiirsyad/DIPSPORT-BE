@@ -4,8 +4,10 @@ import {v4 as uuidv4} from "uuid"
 import { BUCKET, minioClient, PUBLIC_URL } from "./minioClient.js"
 import type { FileUpload } from 'graphql-upload/processRequest.mjs';
 
-export async function uploadToMinio({file} : {file: Promise<FileUpload>}, folder: string) {
-  const {createReadStream, filename, mimetype} = await file
+export async function uploadToMinio(file: FileUpload, folder: string) {
+  console.log(file)
+  const {createReadStream, filename, mimetype} = file
+  console.log(filename)
   const ext = path.extname(filename)
   const objectName = `${folder}/${uuidv4()}${ext}`
 
