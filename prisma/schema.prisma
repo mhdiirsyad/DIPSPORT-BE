@@ -26,7 +26,6 @@ model Stadion {
   facilities StadionFacility[]
   fields Field[]
   images ImageStadion[]
-  operatingHours OperatingHour[]
 }
 
 model StadionFacility {
@@ -117,25 +116,12 @@ model BookingDetail {
   @@index([fieldId, bookingDate])
 }
 
-enum DayofWeek {
-  SENIN
-  SELASA
-  RABU
-  KAMIS
-  JUMAT
-  SABTU
-  MINGGU
-}
-
 model OperatingHour {
-  id Int @id @default(autoincrement())
-  stadionId Int
-  day DayofWeek
-  openTime DateTime
-  closeTime DateTime
-  Stadion Stadion @relation(fields: [stadionId], references: [id], onDelete: Cascade)
-  
-  @@unique([stadionId, day])
+  id Int @id @default(1)
+  openHour Int
+  closeHour Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Admin {

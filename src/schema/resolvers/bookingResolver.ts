@@ -1,5 +1,6 @@
 import type { BookingStatus, PaymentStatus, PrismaClient } from "@prisma/client"
 import dayjs from "dayjs"
+import { GraphQLError } from "graphql"
 import { v4 as uuidv4 } from "uuid"
 import { requireAuth } from "../../lib/context.js"
 import { createBookingSchema, updateBookingSchema, updatePaymenStatusSchema, } from "./validators/bookingSchema.js"
@@ -45,9 +46,17 @@ type ResolverContext = {
   } | null
 }
 
+const STATUS_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
+  PENDING: ["APPROVED", "CANCELLED"],
+  APPROVED: ["DONE", "CANCELLED"],
+  DONE: [],
+  CANCELLED: [],
+}
+
 export const bookingResolvers = {
   Query: {
-    bookings: async (_: unknown, __: unknown, { prisma }: ResolverContext) => {
+    bookings: async (_: unknown, __: unknown, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
       return prisma.booking.findMany({
         include: {
           details: true,
@@ -55,7 +64,8 @@ export const bookingResolvers = {
         orderBy: { createdAt: "desc" },
       })
     },
-    booking: async (_: unknown, { bookingCode }: BookingArgs, { prisma }: ResolverContext) => {
+    booking: async (_: unknown, { bookingCode }: BookingArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
       return prisma.booking.findUnique({
         where: { bookingCode },
         include: {
@@ -82,12 +92,27 @@ export const bookingResolvers = {
       const bookingCode = `DS-${uuidv4().split("-")[0]?.toUpperCase()}`
       const today = dayjs().startOf("day")
 
+      const operatingHour = await prisma.operatingHour.findUnique({ where: { id: 1 } })
+      if (!operatingHour) {
+        throw new GraphQLError("Jam operasional belum dikonfigurasi", {
+          extensions: { code: "OPERATING_HOUR_MISSING" },
+        })
+      }
+      const openHour = dayjs(operatingHour.openTime).hour()
+      const closeHour = dayjs(operatingHour.closeTime).hour()
+
       const detailPayload = await Promise.all(
         details.map(async (item) => {
           const bookingDate = dayjs(item.bookingDate)
 
           if (bookingDate.isBefore(today.add(1, "day"))) {
             throw new Error("Maksimal booking harus dilakukan minimal H-1")
+          }
+
+          if (item.startHour < openHour || item.startHour >= closeHour) {
+            throw new GraphQLError("Jam yang dipilih berada di luar jam operasional", {
+              extensions: { code: "INVALID_SLOT" },
+            })
           }
 
           const field = await prisma.field.findUnique({
@@ -99,12 +124,28 @@ export const bookingResolvers = {
             throw new Error("Field tidak ditemukan")
           }
 
+          const normalizedDate = bookingDate.startOf("day")
+
+          const existingSlot = await prisma.bookingDetail.findFirst({
+            where: {
+              fieldId: item.fieldId,
+              bookingDate: normalizedDate.toDate(),
+              startHour: item.startHour,
+            },
+          })
+
+          if (existingSlot) {
+            throw new GraphQLError("Slot waktu sudah dibooking oleh pengguna lain", {
+              extensions: { code: "SLOT_UNAVAILABLE" },
+            })
+          }
+
           const pricePerHour = item.pricePerHour ?? field.pricePerHour
           const subtotal = item.subtotal ?? pricePerHour
 
           return {
             fieldId: item.fieldId,
-            bookingDate: bookingDate.toDate(),
+            bookingDate: normalizedDate.toDate(),
             startHour: item.startHour,
             pricePerHour,
             subtotal,
@@ -140,6 +181,27 @@ export const bookingResolvers = {
 
       const validated = await updateBookingSchema.validate(args, { abortEarly: false })
       const { bookingCode, status } = validated
+
+      const booking = await prisma.booking.findUnique({
+        where: { bookingCode },
+        include: { details: true },
+      })
+
+      if (!booking) {
+        throw new GraphQLError("Booking tidak ditemukan", { extensions: { code: "NOT_FOUND" } })
+      }
+
+      if (booking.status === status) {
+        return booking
+      }
+
+      const allowed = STATUS_TRANSITIONS[booking.status] ?? []
+      if (!allowed.includes(status)) {
+        throw new GraphQLError("Perubahan status tidak valid", {
+          extensions: { code: "INVALID_STATUS_TRANSITION" },
+        })
+      }
+
       return prisma.booking.update({
         where: { bookingCode },
         data: {
@@ -155,6 +217,32 @@ export const bookingResolvers = {
 
       const validate = await updatePaymenStatusSchema.validate(args, { abortEarly: false })
       const { bookingCode, paymentStatus } = validate
+
+      const booking = await prisma.booking.findUnique({
+        where: { bookingCode },
+        include: { details: true },
+      })
+
+      if (!booking) {
+        throw new GraphQLError("Booking tidak ditemukan", { extensions: { code: "NOT_FOUND" } })
+      }
+
+      if (booking.paymentStatus === paymentStatus) {
+        return booking
+      }
+
+      if (booking.paymentStatus === "PAID" && paymentStatus === "UNPAID") {
+        throw new GraphQLError("Pembayaran yang sudah lunas tidak dapat diubah menjadi UNPAID", {
+          extensions: { code: "INVALID_PAYMENT_TRANSITION" },
+        })
+      }
+
+      if (paymentStatus === "PAID" && booking.status === "CANCELLED") {
+        throw new GraphQLError("Booking yang dibatalkan tidak dapat ditandai sebagai PAID", {
+          extensions: { code: "INVALID_PAYMENT_TRANSITION" },
+        })
+      }
+
       return prisma.booking.update({
         where: { bookingCode },
         data: {

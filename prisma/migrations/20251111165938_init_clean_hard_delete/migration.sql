@@ -98,23 +98,13 @@ CREATE TABLE `BookingDetail` (
 -- CreateTable
 CREATE TABLE `OperatingHour` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `stadionId` INTEGER NOT NULL,
     `day` ENUM('SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU', 'MINGGU') NOT NULL,
     `openTime` DATETIME(3) NOT NULL,
     `closeTime` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `OperatingHour_stadionId_day_key`(`stadionId`, `day`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Admin` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(191) NOT NULL,
-    `email` VARCHAR(191) NULL,
-    `password` VARCHAR(191) NOT NULL,
-
-    UNIQUE INDEX `Admin_email_key`(`email`),
+    UNIQUE INDEX `OperatingHour_day_key`(`day`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -153,7 +143,10 @@ ALTER TABLE `BookingDetail` ADD CONSTRAINT `BookingDetail_bookingId_fkey` FOREIG
 ALTER TABLE `BookingDetail` ADD CONSTRAINT `BookingDetail_fieldId_fkey` FOREIGN KEY (`fieldId`) REFERENCES `Field`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+<<<<<<< HEAD:prisma/migrations/20251111165938_init_clean_hard_delete/migration.sql
 ALTER TABLE `OperatingHour` ADD CONSTRAINT `OperatingHour_stadionId_fkey` FOREIGN KEY (`stadionId`) REFERENCES `Stadion`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+=======
+>>>>>>> origin/main:prisma/migrations/20251028043423_init/migration.sql
 ALTER TABLE `AdminLog` ADD CONSTRAINT `AdminLog_adminId_fkey` FOREIGN KEY (`adminId`) REFERENCES `Admin`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

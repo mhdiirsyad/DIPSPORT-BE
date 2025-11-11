@@ -1,0 +1,12 @@
+-- Recreate OperatingHour as singleton table
+DROP TABLE IF EXISTS `OperatingHour`;
+
+CREATE TABLE `OperatingHour` (
+    `id` INTEGER NOT NULL DEFAULT 1,
+    `openTime` DATETIME(3) NOT NULL,
+    `closeTime` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

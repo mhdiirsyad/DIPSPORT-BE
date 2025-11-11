@@ -1,59 +1,28 @@
 import * as yup from "yup"
-import { DayofWeek } from "@prisma/client"
-
-const dayofWeekValues = Object.values(DayofWeek)
-
-export const operatingHourSchema = yup
-  .object({
-    stadionId: yup
-      .number()
-      .typeError("stadionId harus berupa angka")
-      .integer("stadionId harus bilangan bulat")
-      .positive("stadionId harus lebih besar dari 0")
-      .required("Stadion ID harus diisi"),
-    day: yup
-      .mixed<DayofWeek>()
-      .oneOf(dayofWeekValues, "Hari tidak valid")
-      .required("Hari harus diisi"),
-    openTime: yup.date().required("Jam buka harus diisi"),
-    closeTime: yup
-      .date()
-      .required("Jam tutup harus diisi")
-      .test(
-        "is-after-open",
-        "Jam tutup harus setelah jam buka",
-        function (value) {
-          const { openTime } = this.parent
-          if (!value || !openTime) return true
-          return new Date(value).getTime() > new Date(openTime).getTime()
-        }
-      ),
-  })
-  .strict(true)
 
 export const operatingHourUpdateSchema = yup
   .object({
-    id: yup
+    openHour: yup
       .number()
-      .typeError("ID harus berupa angka")
-      .integer("ID harus bilangan bulat")
-      .positive("ID harus lebih besar dari 0")
-      .required("ID wajib diisi"),
-    day: yup
-      .mixed<DayofWeek>()
-      .oneOf(dayofWeekValues, "Hari tidak valid")
-      .required("Hari harus diisi"),
-    openTime: yup.date().required("Jam buka harus diisi"),
-    closeTime: yup
-      .date()
+      .typeError("Jam buka harus berupa angka")
+      .integer("Jam buka harus bilangan bulat")
+      .min(0, "Jam buka minimal 0")
+      .max(23, "Jam buka maksimal 23")
+      .required("Jam buka harus diisi"),
+    closeHour: yup
+      .number()
+      .typeError("Jam tutup harus berupa angka")
+      .integer("Jam tutup harus bilangan bulat")
+      .min(1, "Jam tutup minimal 1")
+      .max(24, "Jam tutup maksimal 24")
       .required("Jam tutup harus diisi")
       .test(
         "is-after-open",
         "Jam tutup harus setelah jam buka",
         function (value) {
-          const { openTime } = this.parent
-          if (!value || !openTime) return true
-          return new Date(value).getTime() > new Date(openTime).getTime()
+          const { openHour } = this.parent
+          if (typeof value !== "number" || typeof openHour !== "number") return true
+          return value > openHour
         }
       ),
   })

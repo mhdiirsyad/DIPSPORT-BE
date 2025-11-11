@@ -78,21 +78,12 @@ async function main() {
     ],
   })
 
-  await prisma.operatingHour.createMany({
-    data: [
-      {
-        stadionId: stadion.id,
-        day: "SENIN",
-        openTime: new Date("1970-01-01T08:00:00Z"),
-        closeTime: new Date("1970-01-01T22:00:00Z"),
-      },
-      {
-        stadionId: stadion.id,
-        day: "SABTU",
-        openTime: new Date("1970-01-01T08:00:00Z"),
-        closeTime: new Date("1970-01-01T23:00:00Z"),
-      },
-    ],
+  await prisma.operatingHour.create({
+    data: {
+      id: 1,
+      openHour: 8,
+      closeHour: 22,
+    },
   })
 
   const mainField = await prisma.field.create({

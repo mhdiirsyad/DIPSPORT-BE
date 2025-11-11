@@ -44,7 +44,6 @@ export const stadionResolvers = {
           fields: true,
           facilities: true,
           images: true,
-          operatingHours: true,
         },
       })
     },
@@ -55,7 +54,6 @@ export const stadionResolvers = {
           fields: true,
           facilities: { include: { Facility: true } },
           images: true,
-          operatingHours: true,
         },
       })
     },
@@ -132,7 +130,6 @@ export const stadionResolvers = {
           fields: true,
           facilities: true,
           images: true,
-          operatingHours: true,
         },
       })
     },

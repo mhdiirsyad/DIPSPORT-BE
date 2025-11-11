@@ -21,16 +21,6 @@ export default gql`
     PAID
   }
 
-  enum DayofWeek {
-    SENIN
-    SELASA
-    RABU
-    KAMIS
-    JUMAT
-    SABTU
-    MINGGU
-  }
-
   type Stadion {
     id: ID!
     name: String!
@@ -40,7 +30,7 @@ export default gql`
     facilities: [StadionFacility!]
     fields: [Field!]
     images: [ImageStadion!]
-    operatingHours: [OperatingHour!]
+    operatingHours: OperatingHour
   }
 
   type StadionFacility {
@@ -113,11 +103,8 @@ export default gql`
 
   type OperatingHour {
     id: ID!
-    day: DayofWeek!
-    openTime: DateTime!
-    closeTime: DateTime!
-    stadionId: Int!
-    Stadion: Stadion
+    openHour: Int!
+    closeHour: Int!
   }
 
   type AdminLog {
@@ -155,7 +142,7 @@ export default gql`
     field(fieldId: ID!): Field
     bookings: [Booking!]
     booking(bookingCode: String!): Booking
-    operatingHoursByStadion(stadionId: Int!): [OperatingHour]
+    operatingHours: OperatingHour
     me: Admin
     facilities: [Facility!]
     facility(facilityId: ID!): Facility
@@ -241,27 +228,19 @@ export default gql`
       paymentStatus: PaymentStatus!
     ): Booking!
 
-    createOperatingHour(
-      stadionId: Int! 
-      day: DayofWeek!
-      openTime: DateTime!
-      closeTime: DateTime!
-    ): OperatingHour
-
     updateOperatingHour(
-      id: Int!
-      day: DayofWeek!
-      openTime: DateTime!
-      closeTime: DateTime!
-    ): OperatingHour
-
-    deleteOperatingHour(
-      id: Int!
+      openHour: Int!
+      closeHour: Int!
     ): OperatingHour
 
     uploadStadionImages(
       stadionId: Int!
-      imageUrl: [Upload!]!
+      files: [Upload!]!
+    ): uploadResponse!
+
+    uploadFieldImages(
+      stadionId: Int!
+      files: [Upload!]!
     ): uploadResponse!
 
     createFacility(
