@@ -79,7 +79,6 @@ export const stadionResolvers = {
           fields: true,
           facilities: { include: { Facility: true } },
           images: true,
-          operatingHours: true,
         },
       })
     },
@@ -107,13 +106,17 @@ export const stadionResolvers = {
             fields: true,
             facilities: { include: { Facility: true } },
             images: true,
-            operatingHours: true,
           },
         })
         if (status === "INACTIVE") {
           await tx.field.updateMany({
             where: { stadionId: id },
             data: { status: "INACTIVE" },
+          })
+        } else if (status == "ACTIVE") {
+          await tx.field.updateMany({
+            where: { stadionId: id },
+            data: { status: "ACTIVE" },
           })
         }
         return updatedStadion
