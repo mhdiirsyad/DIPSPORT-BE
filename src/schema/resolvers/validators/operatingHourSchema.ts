@@ -31,7 +31,6 @@ export const operatingHourSchema = yup
   })
   .strict(true)
 
-// Update schema - excludes stadionId (can't change stadium of existing hours)
 export const operatingHourUpdateSchema = yup
   .object({
     id: yup

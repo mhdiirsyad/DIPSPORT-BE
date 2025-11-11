@@ -31,14 +31,14 @@ app.use(
 
 app.use(
   "/graphql",
-  bodyParser.json(),
   graphqlUploadExpress(),
+  bodyParser.json(),
   expressMiddleware(server, {
     context: async ({ req }) => buildContext(req),
   })
 )
 
-const port = process.env.PORT || 4001
+const port = process.env.PORT || 4000
 
 app.listen(port, () => {
   console.log(`Server ready at http://localhost:${port}/graphql`)
