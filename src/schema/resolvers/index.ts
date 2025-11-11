@@ -71,6 +71,21 @@ const resolvers = {
         admin: safeAdmin,
       }
     },
+    logout: async (_: unknown, __: unknown, { prisma, admin }: ResolverContext) => {
+      const currentAdmin = requireAuth(admin)
+
+      await prisma.adminLog.create({
+        data: {
+          adminId: currentAdmin.adminId,
+          action: "LOGOUT",
+          targetTable: null,
+          targetId: null,
+          description: null,
+        },
+      })
+
+      return true
+    },
   },
   DateTime: DateTimeResolver,
 }

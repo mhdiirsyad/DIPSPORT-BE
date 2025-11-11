@@ -19,15 +19,43 @@ export const operatingHourSchema = yup
     closeTime: yup
       .date()
       .required("Jam tutup harus diisi")
-      .min(yup.ref('openTime'), "Jam tutup harus setelah jam buka"),
+      .test(
+        "is-after-open",
+        "Jam tutup harus setelah jam buka",
+        function (value) {
+          const { openTime } = this.parent
+          if (!value || !openTime) return true
+          return new Date(value).getTime() > new Date(openTime).getTime()
+        }
+      ),
   })
   .strict(true)
 
-export const operatingHourUpdateSchema = operatingHourSchema.shape({
-  id: yup
-    .number()
-    .typeError("ID harus berupa angka")
-    .integer("ID harus bilangan bulat")
-    .positive("ID harus lebih besar dari 0")
-    .required("ID wajib diisi"),
-})
+// Update schema - excludes stadionId (can't change stadium of existing hours)
+export const operatingHourUpdateSchema = yup
+  .object({
+    id: yup
+      .number()
+      .typeError("ID harus berupa angka")
+      .integer("ID harus bilangan bulat")
+      .positive("ID harus lebih besar dari 0")
+      .required("ID wajib diisi"),
+    day: yup
+      .mixed<DayofWeek>()
+      .oneOf(dayofWeekValues, "Hari tidak valid")
+      .required("Hari harus diisi"),
+    openTime: yup.date().required("Jam buka harus diisi"),
+    closeTime: yup
+      .date()
+      .required("Jam tutup harus diisi")
+      .test(
+        "is-after-open",
+        "Jam tutup harus setelah jam buka",
+        function (value) {
+          const { openTime } = this.parent
+          if (!value || !openTime) return true
+          return new Date(value).getTime() > new Date(openTime).getTime()
+        }
+      ),
+  })
+  .strict(true)
