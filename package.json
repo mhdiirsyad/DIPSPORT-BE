@@ -27,6 +27,7 @@
     "@types/uuid": "^10.0.0",
     "cors": "^2.8.5",
     "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "dayjs": "^1.11.18",
     "dotenv": "^17.2.3",
     "es-mime-types": "^0.1.4",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.4",
     "@types/cors": "^2.8.17",
     "@types/graphql-upload": "^17.0.0",

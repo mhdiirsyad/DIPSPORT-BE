@@ -17,6 +17,7 @@ export async function uploadToMinio(file: FileUpload, folder: string) {
     "Content-Type": mimetype || lookup(ext) || "aplication/octet-stream",
   })
 
-  const publicUrl = `${PUBLIC_URL}/${BUCKET}/${objectName}`;
-  return publicUrl;
+  const publicUrl = minioClient.presignedGetObject(BUCKET, objectName)
+  console.log(publicUrl)
+  return {publicUrl, name: `${objectName}`};
 }

@@ -24,8 +24,10 @@ async function handleImageUpload(
 
   const uploadedImages: string[] = [];
   for (const file of resolvedFiles) {
-    const publicUrl = await uploadToMinio(file, folder);
-    uploadedImages.push(publicUrl);
+    const {publicUrl, name} = await uploadToMinio(file, folder);
+    const url = await publicUrl
+    console.log(url)
+    uploadedImages.push(name);
   }
 
   await prismaCreateMany(
