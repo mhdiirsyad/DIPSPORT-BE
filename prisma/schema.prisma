@@ -130,6 +130,8 @@ model Admin {
   email String? @unique // Tambahan
   password String
   adminLogs AdminLog[]
+
+  @@map("admin")
 }
 
 model AdminLog {
