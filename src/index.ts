@@ -1,5 +1,6 @@
 import "dotenv/config"
 import express from "express"
+import cors from 'cors'
 import { ApolloServer } from "@apollo/server"
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs"
 import { expressMiddleware } from "@as-integrations/express5"
@@ -9,6 +10,10 @@ import resolvers from "./schema/resolvers/index.js"
 import { buildContext } from "./lib/context.js"
 
 const app = express()
+app.use(cors({
+  origin: ['http://localhost:3000'],
+  credentials: true
+}))
 const server = new ApolloServer({
   typeDefs,
   resolvers,
