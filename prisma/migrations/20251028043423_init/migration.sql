@@ -86,11 +86,13 @@ CREATE TABLE `BookingDetail` (
 -- CreateTable
 CREATE TABLE `OperatingHour` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `stadionId` INTEGER NOT NULL,
     `day` ENUM('SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU', 'MINGGU') NOT NULL,
-    `openTime` VARCHAR(191) NOT NULL,
-    `closeTime` VARCHAR(191) NOT NULL,
+    `openTime` DATETIME(3) NOT NULL,
+    `closeTime` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 
+    UNIQUE INDEX `OperatingHour_day_key`(`day`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -136,9 +138,6 @@ ALTER TABLE `BookingDetail` ADD CONSTRAINT `BookingDetail_bookingId_fkey` FOREIG
 
 -- AddForeignKey
 ALTER TABLE `BookingDetail` ADD CONSTRAINT `BookingDetail_fieldId_fkey` FOREIGN KEY (`fieldId`) REFERENCES `Field`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `OperatingHour` ADD CONSTRAINT `OperatingHour_stadionId_fkey` FOREIGN KEY (`stadionId`) REFERENCES `Stadion`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `AdminLog` ADD CONSTRAINT `AdminLog_adminId_fkey` FOREIGN KEY (`adminId`) REFERENCES `Admin`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

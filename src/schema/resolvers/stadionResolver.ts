@@ -39,7 +39,6 @@ export const stadionResolvers = {
           fields: true,
           facilities: true,
           images: true,
-          operatingHours: true,
         },
       })
     },
@@ -50,7 +49,6 @@ export const stadionResolvers = {
           fields: true,
           facilities: true,
           images: true,
-          operatingHours: true,
         },
       })
     },
@@ -70,7 +68,6 @@ export const stadionResolvers = {
           fields: true,
           facilities: true,
           images: true,
-          operatingHours: true,
         },
       })
     },
@@ -90,7 +87,6 @@ export const stadionResolvers = {
           fields: true,
           facilities: true,
           images: true,
-          operatingHours: true,
         },
       })
     },
@@ -102,7 +98,6 @@ export const stadionResolvers = {
       return prisma.$transaction(async (tx) => {
         await tx.stadionFacility.deleteMany({ where: { stadionId: id } })
         await tx.imageStadion.deleteMany({ where: { stadionId: id } })
-        await tx.operatingHour.deleteMany({ where: { stadionId: id } })
         await tx.field.deleteMany({ where: { stadionId: id } })
 
         return tx.stadion.delete({
@@ -111,10 +106,14 @@ export const stadionResolvers = {
             fields: true,
             facilities: true,
             images: true,
-            operatingHours: true,
           },
         })
       })
+    },
+  },
+  Stadion: {
+    operatingHours: async (_parent: { id: number }, __: unknown, { prisma }: ResolverContext) => {
+      return prisma.operatingHour.findUnique({ where: { id: 1 } })
     },
   },
 }

@@ -1,12 +1,8 @@
 /*
   Warnings:
 
-  - You are about to alter the column `openTime` on the `operatinghour` table. The data in that column could be lost. The data in that column will be cast from `VarChar(191)` to `DateTime(3)`.
-  - You are about to alter the column `closeTime` on the `operatinghour` table. The data in that column could be lost. The data in that column will be cast from `VarChar(191)` to `DateTime(3)`.
-  - A unique constraint covering the columns `[email]` on the table `Admin` will be added. If there are existing duplicate values, this will fail.
-  - A unique constraint covering the columns `[fieldId,bookingDate,startHour]` on the table `BookingDetail` will be added. If there are existing duplicate values, this will fail.
-  - A unique constraint covering the columns `[stadionId,day]` on the table `OperatingHour` will be added. If there are existing duplicate values, this will fail.
   - Added the required column `pricePerHour` to the `BookingDetail` table without a default value. This is not possible if the table is not empty.
+  - The `OperatingHour` table will be dropped and recreated. Existing data will be removed.
 
 */
 -- AlterTable
@@ -20,9 +16,20 @@ ALTER TABLE `booking` ADD COLUMN `paymentStatus` ENUM('UNPAID', 'PAID') NOT NULL
 ALTER TABLE `bookingdetail` ADD COLUMN `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     ADD COLUMN `pricePerHour` INTEGER NOT NULL;
 
--- AlterTable
-ALTER TABLE `operatinghour` MODIFY `openTime` DATETIME(3) NOT NULL,
-    MODIFY `closeTime` DATETIME(3) NOT NULL;
+-- Recreate OperatingHour as global master data
+DROP TABLE IF EXISTS `OperatingHour`;
+
+CREATE TABLE `OperatingHour` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `day` ENUM('SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU', 'MINGGU') NOT NULL,
+    `openTime` DATETIME(3) NOT NULL,
+    `closeTime` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `OperatingHour_day_key`(`day`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateIndex
 CREATE UNIQUE INDEX `Admin_email_key` ON `Admin`(`email`);
@@ -38,9 +45,6 @@ CREATE INDEX `BookingDetail_fieldId_bookingDate_idx` ON `BookingDetail`(`fieldId
 
 -- CreateIndex
 CREATE UNIQUE INDEX `BookingDetail_fieldId_bookingDate_startHour_key` ON `BookingDetail`(`fieldId`, `bookingDate`, `startHour`);
-
--- CreateIndex
-CREATE UNIQUE INDEX `OperatingHour_stadionId_day_key` ON `OperatingHour`(`stadionId`, `day`);
 
 -- RenameIndex
 ALTER TABLE `field` RENAME INDEX `Field_stadionId_fkey` TO `Field_stadionId_idx`;
