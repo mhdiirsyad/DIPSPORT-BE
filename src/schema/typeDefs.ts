@@ -11,6 +11,11 @@ export default gql`
     DONE
   }
 
+  enum Status {
+    ACTIVE
+    INACTIVE
+  }
+
   enum PaymentStatus {
     UNPAID
     PAID
@@ -21,6 +26,7 @@ export default gql`
     name: String!
     description: String
     mapUrl: String!
+    status: Status!
     facilities: [StadionFacility!]
     fields: [Field!]
     images: [ImageStadion!]
@@ -38,6 +44,7 @@ export default gql`
   type Facility {
     id: ID!
     name: String!
+    icon: String
     stadionFacilities: [StadionFacility!]
   }
 
@@ -47,6 +54,7 @@ export default gql`
     name: String!
     description: String
     pricePerHour: Int!
+    status: Status!
     images: [ImageField!]
     bookingDetails: [BookingDetail!]
     Stadion: Stadion
@@ -136,6 +144,8 @@ export default gql`
     booking(bookingCode: String!): Booking
     operatingHours: OperatingHour
     me: Admin
+    facilities: [Facility!]
+    facility(facilityId: ID!): Facility
   }
 
   input FieldImageInput {
@@ -158,6 +168,8 @@ export default gql`
       name: String!
       description: String
       mapUrl: String!
+      status: Status
+      facilityIds: [Int]
     ): Stadion!
 
     updateStadion(
@@ -165,6 +177,8 @@ export default gql`
       name: String!
       description: String
       mapUrl: String!
+      status: Status
+      facilityIds: [Int]
     ): Stadion!
 
     deleteStadion(
@@ -177,6 +191,7 @@ export default gql`
       description: String
       pricePerHour: Int!
       images: [FieldImageInput!]
+      status: Status
     ): Field!
 
     updateField(
@@ -186,6 +201,7 @@ export default gql`
       description: String
       pricePerHour: Int!
       images: [FieldImageInput!]
+      status: Status
     ): Field!
 
     deleteField(
@@ -226,5 +242,20 @@ export default gql`
       stadionId: Int!
       files: [Upload!]!
     ): uploadResponse!
+
+    createFacility(
+      name: String!
+      icon: String
+    ): Facility!
+
+    updateFacility(
+      facilityId: ID!
+      name: String!
+      icon: String
+    ): Facility!
+
+    deleteFacility(
+      facilityId: ID!
+    ): Facility!
   }
 `

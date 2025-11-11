@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
@@ -13,11 +12,17 @@ datasource db {
   url      = env("MYSQL_URL")
 }
 
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
 model Stadion {
   id Int @id @default(autoincrement())
   name String
   description String?
   mapUrl String
+  status Status @default(ACTIVE)
   facilities StadionFacility[]
   fields Field[]
   images ImageStadion[]
@@ -27,14 +32,14 @@ model StadionFacility {
   id Int @id @default(autoincrement())
   stadionId Int
   facilityId Int
-  Stadion Stadion @relation(fields: [stadionId], references: [id])
+  Stadion Stadion @relation(fields: [stadionId], references: [id], onDelete: Cascade)
   Facility Facility @relation(fields: [facilityId], references: [id])
-
 }
 
 model Facility {
   id Int @id @default(autoincrement())
   name String
+  icon String?
   stadionFacilities StadionFacility[]
 }
 
@@ -44,10 +49,10 @@ model Field {
   name String
   description String?
   pricePerHour Int
+  status Status @default(ACTIVE)
   images ImageField[]
   bookingDetails BookingDetail[]
-  Stadion Stadion @relation(fields: [stadionId], references: [id])
-
+  Stadion Stadion @relation(fields: [stadionId], references: [id], onDelete: Cascade)
   @@index([stadionId])
 }
 
@@ -55,14 +60,14 @@ model ImageStadion {
   id Int @id @default(autoincrement())
   stadionId Int
   imageUrl String
-  Stadion Stadion @relation(fields: [stadionId], references: [id])
+  Stadion Stadion @relation(fields: [stadionId], references: [id], onDelete: Cascade)
 }
 
 model ImageField {
   id Int @id @default(autoincrement())
   fieldId Int
   imageUrl String
-  Field Field @relation(fields: [fieldId], references: [id])
+  Field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 }
 
 enum BookingStatus {
@@ -91,7 +96,6 @@ model Booking {
   paymentStatus PaymentStatus  @default(UNPAID) // status proses bayar buat audit misal yang pake surat atau ga
   createdAt DateTime @default(now())
   details BookingDetail[]
-
   // buat peforma di admin
   @@index([status, createdAt])
   @@index([paymentStatus])
@@ -107,8 +111,7 @@ model BookingDetail {
   subtotal Int
   createdAt DateTime @default(now()) // tambahan buat dijadiin waktu kunci slot
   Booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  Field Field @relation(fields: [fieldId], references: [id])
-
+  Field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
   @@unique([fieldId, bookingDate, startHour])
   @@index([fieldId, bookingDate])
 }
@@ -127,6 +130,8 @@ model Admin {
   email String? @unique // Tambahan
   password String
   adminLogs AdminLog[]
+
+  @@map("admin")
 }
 
 model AdminLog {

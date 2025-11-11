@@ -7,17 +7,16 @@ async function main() {
   console.log("🚀 Seeding database...")
 
   await prisma.$transaction([
-    prisma.bookingDetail.deleteMany(),
-    prisma.booking.deleteMany(),
-    prisma.imageField.deleteMany(),
-    prisma.field.deleteMany(),
-    prisma.imageStadion.deleteMany(),
-    prisma.operatingHour.deleteMany(),
-    prisma.stadionFacility.deleteMany(),
-    prisma.facility.deleteMany(),
-    prisma.adminLog.deleteMany(),
-    prisma.admin.deleteMany(),
-    prisma.stadion.deleteMany(),
+    // prisma.booking.deleteMany(),
+    // prisma.imageField.deleteMany(),
+    // prisma.field.deleteMany(),
+    // prisma.imageStadion.deleteMany(),
+    // prisma.operatingHour.deleteMany(),
+    // prisma.stadionFacility.deleteMany(),
+    // prisma.facility.deleteMany(),
+    // prisma.adminLog.deleteMany(),
+    // prisma.admin.deleteMany(),
+    // prisma.stadion.deleteMany(),
   ])
 
   const defaultPassword = "admin123"
