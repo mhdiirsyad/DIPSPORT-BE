@@ -10,10 +10,6 @@ import resolvers from "./schema/resolvers/index.js"
 import { buildContext } from "./lib/context.js"
 
 const app = express()
-app.use(cors({
-  origin: ['http://localhost:3000'],
-  credentials: true
-}))
 const server = new ApolloServer({
   typeDefs,
   resolvers,
