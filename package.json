@@ -26,7 +26,6 @@
     "@prisma/client": "^6.18.0",
     "@types/uuid": "^10.0.0",
     "bcrypt": "^6.0.0",
-    "cors": "^2.8.5",
     "dayjs": "^1.11.18",
     "dotenv": "^17.2.3",
     "es-mime-types": "^0.1.4",

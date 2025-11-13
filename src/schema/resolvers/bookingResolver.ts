@@ -47,10 +47,40 @@ type ResolverContext = {
 
 export const bookingResolvers = {
   Query: {
-    bookings: async (_: unknown, __: unknown, { prisma }: ResolverContext) => {
+    bookings: async (_: unknown, args: {stadionId?: number | string, date?: Date}, { prisma }: ResolverContext) => {
+      const filters: any = {}
+
+      if(args.stadionId){
+        filters.details = {
+          some: {
+            Field: {
+              stadionId: Number(args.stadionId)
+            }
+          }
+        }
+      }
+
+      if(args.date){
+        const selectedDate = new Date(args.date)
+        filters.details = {
+          ...filters.details,
+          some: {
+            ...filters.details?.some,
+            bookingDate: {
+              gte: new Date(selectedDate.setHours(0, 0, 0, 0)),
+              lt: new Date(selectedDate.setHours(23, 59, 59, 999)),
+            }
+          }
+        }
+      }
       return prisma.booking.findMany({
+        where: filters,
         include: {
-          details: true,
+          details: {
+            include: {
+              Field: true
+            }
+          },
         },
         orderBy: { createdAt: "desc" },
       })
@@ -59,7 +89,9 @@ export const bookingResolvers = {
       return prisma.booking.findUnique({
         where: { bookingCode },
         include: {
-          details: true,
+          details: {
+            include: { Field: true }
+          },
         },
       })
     },

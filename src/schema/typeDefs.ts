@@ -99,6 +99,7 @@ export default gql`
     pricePerHour: Int!
     subtotal: Int!
     createdAt: DateTime!
+    Field: Field
   }
 
   type OperatingHour {
@@ -140,7 +141,7 @@ export default gql`
     stadion(stadionId: ID!): Stadion
     fields(stadionId: ID): [Field!]
     field(fieldId: ID!): Field
-    bookings: [Booking!]
+    bookings(stadionId: ID, date: DateTime): [Booking!]
     booking(bookingCode: String!): Booking
     operatingHours: OperatingHour
     me: Admin
