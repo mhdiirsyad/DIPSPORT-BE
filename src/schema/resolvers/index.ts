@@ -3,7 +3,7 @@ import { DateTimeResolver } from "graphql-scalars"
 import { GraphQLError } from "graphql"
 import { generateToken, verifyPassword } from "../../lib/auth.js"
 import { requireAuth } from "../../lib/context.js"
-import { stadionResolvers } from "./stadionResolver.js"
+import { stadionResolvers, stadionFieldResolvers } from "./stadionResolver.js"
 import { fieldResolvers } from "./fieldResolver.js"
 import { bookingResolvers } from "./bookingResolver.js"
 import { operatingHourResolvers } from "./operatingHourResolver.js"
@@ -91,6 +91,7 @@ const resolvers = {
     },
   },
   DateTime: DateTimeResolver,
+  Stadion: stadionFieldResolvers,
 }
 
 export default resolvers

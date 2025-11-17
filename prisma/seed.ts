@@ -1,179 +1,269 @@
-import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcrypt"
+import { PrismaClient, Status } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
-async function main() {
-  console.log("🚀 Seeding database...")
+type StadionSeed = {
+  name: string
+  description: string
+  mapUrl: string
+  status?: Status
+  facilityNames: string[]
+  images: string[]
+  fields: Array<{
+    name: string
+    description: string
+    pricePerHour: number
+    status?: Status
+    images: string[]
+  }>
+}
 
+async function main() {
+  console.log("🚀 Seeding database with demo data...")
+
+  console.log("♻️ Clearing existing data...")
   await prisma.$transaction([
-    // prisma.booking.deleteMany(),
-    // prisma.imageField.deleteMany(),
-    // prisma.field.deleteMany(),
-    // prisma.imageStadion.deleteMany(),
-    // prisma.operatingHour.deleteMany(),
-    // prisma.stadionFacility.deleteMany(),
-    // prisma.facility.deleteMany(),
-    // prisma.adminLog.deleteMany(),
-    // prisma.admin.deleteMany(),
-    // prisma.stadion.deleteMany(),
+    prisma.adminLog.deleteMany(),
+    prisma.bookingDetail.deleteMany(),
+    prisma.booking.deleteMany(),
+    prisma.imageField.deleteMany(),
+    prisma.field.deleteMany(),
+    prisma.imageStadion.deleteMany(),
+    prisma.stadionFacility.deleteMany(),
+    prisma.facility.deleteMany(),
+    prisma.operatingHour.deleteMany(),
+    prisma.admin.deleteMany(),
+    prisma.stadion.deleteMany(),
   ])
 
   const defaultPassword = "admin123"
   const hashedPassword = await bcrypt.hash(defaultPassword, 10)
 
-  const admin = await prisma.admin.create({
-    data: {
-      name: "Super Admin",
-      email: "admin@dipsport.com",
-      password: hashedPassword,
-    },
-  })
+  const [admin, admin2] = await Promise.all([
+    prisma.admin.create({
+      data: {
+        name: "Super Admin",
+        email: "admin@dipsport.com",
+        password: hashedPassword,
+      },
+    }),
+    prisma.admin.create({
+      data: {
+        name: "Admin 2",
+        email: "admin2@dipsport.com",
+        password: hashedPassword,
+      },
+    }),
+  ])
 
-  const admin2 = await prisma.admin.create({
-    data: {
-      name: "Admin 2",
-      email: "admin2@dipsport.com",
-      password: hashedPassword,
-    },
-  })
-
-  console.log("✅ Admin accounts created:", [
+  console.log("👥 Admin accounts created:", [
     { id: admin.id, email: admin.email },
     { id: admin2.id, email: admin2.email },
   ])
 
+  const facilitySeeds = [
+    { name: "Parking Area", icon: "lucide:bike" },
+    { name: "Locker Room", icon: "heroicons:lock-closed" },
+    { name: "Rest Room", icon: "lucide:shower-head" },
+    { name: "WiFi Gratis", icon: "heroicons:wifi" },
+    { name: "Sound System", icon: "heroicons:speaker-wave" },
+    { name: "Tribun / Kursi", icon: "lucide:armchair" },
+  ]
+
   const facilities = await Promise.all(
-    ["Parking Area", "Locker Room", "Rest Room"].map((name) =>
-      prisma.facility.create({ data: { name } })
+    facilitySeeds.map((facility) =>
+      prisma.facility.create({
+        data: facility,
+      })
     )
   )
+  const facilityMap = new Map(facilities.map((facility) => [facility.name, facility.id]))
 
-  const stadion = await prisma.stadion.create({
-    data: {
+  const stadionSeeds: StadionSeed[] = [
+    {
       name: "Stadion Gelora DipSport",
-      description: "Indoor multi-sport arena with modern facilities",
-      mapUrl: "https://example.com/maps/gelora-dipsport",
+      description: "Indoor multi-sport arena dengan fasilitas lengkap untuk sepak bola dan atletik.",
+      mapUrl: "https://goo.gl/maps/6hXfG1m6Q6v6cSxY6",
+      status: "ACTIVE",
+      facilityNames: ["Parking Area", "Locker Room", "WiFi Gratis", "Sound System"],
+      images: [
+        "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1522771930-78848d9293e8?auto=format&fit=crop&w=1200&q=80",
+      ],
+      fields: [
+        {
+          name: "Lapangan Utama",
+          description: "Lapangan rumput sintetis standar nasional dengan kapasitas penonton besar.",
+          pricePerHour: 250000,
+          status: "ACTIVE",
+          images: [
+            "https://images.unsplash.com/photo-1444491741275-3747c53c99b4?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1471295253337-3ceaaedca402?auto=format&fit=crop&w=1200&q=80",
+          ],
+        },
+        {
+          name: "Lapangan Pendukung",
+          description: "Lapangan multi-fungsi untuk basket dan futsal dengan lantai vinyl premium.",
+          pricePerHour: 180000,
+          status: "ACTIVE",
+          images: [
+            "https://images.unsplash.com/photo-1426024120108-99cc76989c71?auto=format&fit=crop&w=1200&q=80",
+          ],
+        },
+      ],
     },
-  })
+    {
+      name: "Arena Fajar Nusantara",
+      description: "Arena outdoor dengan pencahayaan malam lengkap untuk turnamen komunitas.",
+      mapUrl: "https://goo.gl/maps/3M1YcCTmUqU1qfVt8",
+      status: "ACTIVE",
+      facilityNames: ["Parking Area", "Rest Room", "Tribun / Kursi"],
+      images: [
+        "https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1508606572321-901ea443707f?auto=format&fit=crop&w=1200&q=80",
+      ],
+      fields: [
+        {
+          name: "Lapangan Selatan",
+          description: "Lapangan outdoor dengan rumput alami, cocok untuk latihan harian.",
+          pricePerHour: 150000,
+          status: "ACTIVE",
+          images: [
+            "https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?auto=format&fit=crop&w=1200&q=80",
+          ],
+        },
+      ],
+    },
+  ]
 
-  await prisma.stadionFacility.createMany({
-    data: facilities.map((facility) => ({
-      stadionId: stadion.id,
-      facilityId: facility.id,
-    })),
-  })
+  const allFields: Array<{ id: number; pricePerHour: number }> = []
 
-  await prisma.imageStadion.createMany({
-    data: [
-      {
-        stadionId: stadion.id,
-        imageUrl: "https://example.com/images/stadion-exterior.jpg",
+  for (const stadionSpec of stadionSeeds) {
+    const stadion = await prisma.stadion.create({
+      data: {
+        name: stadionSpec.name,
+        description: stadionSpec.description,
+        mapUrl: stadionSpec.mapUrl,
+        status: stadionSpec.status ?? "ACTIVE",
       },
-      {
-        stadionId: stadion.id,
-        imageUrl: "https://example.com/images/stadion-interior.jpg",
-      },
-    ],
-  })
+    })
 
-  await prisma.operatingHour.create({
-    data: {
+    const facilityIds = stadionSpec.facilityNames
+      .map((name) => facilityMap.get(name))
+      .filter((id): id is number => typeof id === "number")
+
+    if (facilityIds.length > 0) {
+      await prisma.stadionFacility.createMany({
+        data: facilityIds.map((facilityId) => ({
+          stadionId: stadion.id,
+          facilityId,
+        })),
+      })
+    }
+
+    if (stadionSpec.images.length) {
+      await prisma.imageStadion.createMany({
+        data: stadionSpec.images.map((imageUrl) => ({
+          stadionId: stadion.id,
+          imageUrl,
+        })),
+      })
+    }
+
+    for (const fieldSpec of stadionSpec.fields) {
+      const field = await prisma.field.create({
+        data: {
+          stadionId: stadion.id,
+          name: fieldSpec.name,
+          description: fieldSpec.description,
+          pricePerHour: fieldSpec.pricePerHour,
+          status: fieldSpec.status ?? "ACTIVE",
+          images: {
+            create: fieldSpec.images.map((imageUrl) => ({ imageUrl })),
+          },
+        },
+      })
+
+      allFields.push({ id: field.id, pricePerHour: field.pricePerHour })
+    }
+  }
+
+  await prisma.operatingHour.upsert({
+    where: { id: 1 },
+    update: {
+      openHour: 8,
+      closeHour: 22,
+    },
+    create: {
       id: 1,
       openHour: 8,
       closeHour: 22,
     },
   })
 
-  const mainField = await prisma.field.create({
-    data: {
-      stadionId: stadion.id,
-      name: "Lapangan Utama",
-      description: "Lapangan rumput sintetis standar nasional",
-      pricePerHour: 250000,
-      images: {
-        create: [
-          {
-            imageUrl: "https://example.com/images/lapangan-utama-1.jpg",
-          },
-          {
-            imageUrl: "https://example.com/images/lapangan-utama-2.jpg",
-          },
-        ],
+  if (allFields.length === 0) {
+    throw new Error("Field seeding failed; at least one field is required to create bookings.")
+  }
+
+  const bookingCodes: string[] = []
+
+  for (let dayOffset = 0; dayOffset < 8; dayOffset++) {
+    const targetField = allFields[dayOffset % allFields.length]
+    const bookingDate = new Date()
+    bookingDate.setDate(bookingDate.getDate() + dayOffset)
+    const startHour = Math.min(20, 9 + dayOffset)
+    bookingDate.setHours(startHour, 0, 0, 0)
+
+    const isAcademic = dayOffset % 3 === 0
+    const bookingCode = `DS-SEED-${(dayOffset + 1).toString().padStart(3, "0")}`
+
+    const booking = await prisma.booking.create({
+      data: {
+        bookingCode,
+        name: `Seed User ${dayOffset + 1}`,
+        contact: `08123${(456780 + dayOffset).toString()}`,
+        email: `seeduser${dayOffset + 1}@example.com`,
+        institution: isAcademic ? "Universitas DipSport" : "Komunitas Olahraga",
+        suratUrl: isAcademic ? `https://example.com/uploads/surat-${dayOffset + 1}.pdf` : null,
+        isAcademic,
+        totalPrice: isAcademic ? 0 : targetField.pricePerHour,
+        status: dayOffset % 2 === 0 ? "APPROVED" : "PENDING",
+        paymentStatus: dayOffset % 2 === 0 ? "PAID" : "UNPAID",
+        details: {
+          create: [
+            {
+              fieldId: targetField.id,
+              bookingDate,
+              startHour,
+              pricePerHour: targetField.pricePerHour,
+              subtotal: targetField.pricePerHour,
+            },
+          ],
+        },
       },
-    },
-    include: {
-      images: true,
-    },
-  })
-
-  const secondaryField = await prisma.field.create({
-    data: {
-      stadionId: stadion.id,
-      name: "Lapangan Pendukung",
-      description: "Lapangan multi-fungsi untuk basket dan futsal",
-      pricePerHour: 180000,
-      images: {
-        create: [
-          {
-            imageUrl: "https://example.com/images/lapangan-pendukung-1.jpg",
-          },
-        ],
+      include: {
+        details: true,
       },
-    },
-  })
+    })
 
-  const bookingDate = new Date()
-  bookingDate.setDate(bookingDate.getDate() + 3)
-  bookingDate.setHours(9, 0, 0, 0)
+    bookingCodes.push(booking.bookingCode)
 
-  const booking = await prisma.booking.create({
-    data: {
-      bookingCode: "DS-SEED-001",
-      name: "Andi Wijaya",
-      contact: "08123456789",
-      email: "andi@example.com",
-      institution: "Universitas DipSport",
-      suratUrl: "https://example.com/uploads/surat-rekomendasi.pdf",
-      isAcademic: false,
-      totalPrice: mainField.pricePerHour,
-      status: "APPROVED",
-      paymentStatus: "PAID",
-      details: {
-        create: [
-          {
-            fieldId: mainField.id,
-            bookingDate,
-            startHour: 9,
-            pricePerHour: mainField.pricePerHour,
-            subtotal: mainField.pricePerHour,
-          },
-        ],
+    await prisma.adminLog.create({
+      data: {
+        adminId: admin.id,
+        action: "SEED_BOOKING",
+        targetTable: "Booking",
+        targetId: booking.id,
+        description: `Seed booking created for ${bookingDate.toDateString()}`,
       },
-    },
-    include: {
-      details: true,
-    },
-  })
+    })
+  }
 
-  await prisma.adminLog.create({
-    data: {
-      adminId: admin.id,
-      action: "SEED",
-      targetTable: "Booking",
-      targetId: booking.id,
-      description: "Initial booking created during seed process",
-    },
-  })
+  console.log("Stadions and fields seeded with Unsplash imagery.")
+  console.log("Booking samples created:", bookingCodes)
+  console.log("Seeding completed! Default admin password:", defaultPassword)
 
-  console.log("✅ Stadion with related data seeded:", {
-    stadionId: stadion.id,
-    fields: [mainField.id, secondaryField.id],
-    bookingCode: booking.bookingCode,
-  })
-
-  console.log("🎉 Seeding completed!")
-  console.log("ℹ️  Default admin password: admin123")
 }
 
 main()
