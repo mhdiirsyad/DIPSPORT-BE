@@ -138,3 +138,9 @@ export const stadionResolvers = {
     },
   },
 }
+
+export const stadionFieldResolvers = {
+  operatingHours: async (_: unknown, __: unknown, { prisma }: ResolverContext) => {
+    return prisma.operatingHour.findUnique({ where: { id: 1 } })
+  },
+}
