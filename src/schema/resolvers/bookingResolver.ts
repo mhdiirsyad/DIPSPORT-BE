@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid"
 import { requireAuth } from "../../lib/context.js"
 import { createBookingSchema, updateBookingSchema, updatePaymenStatusSchema, } from "./validators/bookingSchema.js"
 
+const DEFAULT_ACADEMIC_SURAT_URL = process.env.DEFAULT_ACADEMIC_SURAT_URL ?? "https://example.com/uploads/placeholder-surat.pdf"
 interface BookingArgs {
   bookingCode: string
 }
@@ -97,18 +98,12 @@ export const bookingResolvers = {
     },
   },
   Mutation: {
-    createBooking: async (_: unknown, args: CreateBookingArgs, { prisma, admin }: ResolverContext) => {
-      requireAuth(admin)
-
+    createBooking: async (_: unknown, args: CreateBookingArgs, { prisma }: ResolverContext) => {
       const validated = await createBookingSchema.validate(args, { abortEarly: false })
       const { name, contact, email, institution, suratUrl, isAcademic = false, details } = validated
 
       if (!details || !Array.isArray(details) || details.length === 0) {
         throw new Error("Detail booking harus diisi")
-      }
-
-      if (isAcademic && !suratUrl) {
-        throw new Error("Surat pengantar diperlukan untuk booking akademik")
       }
 
       const bookingCode = `DS-${uuidv4().split("-")[0]?.toUpperCase()}`
@@ -146,6 +141,8 @@ export const bookingResolvers = {
 
       const totalPrice = isAcademic ? 0 : detailPayload.reduce((acc, curr) => acc + curr.subtotal, 0)
 
+      const normalizedSuratUrl = isAcademic ? suratUrl ?? DEFAULT_ACADEMIC_SURAT_URL : suratUrl ?? null
+
       return prisma.booking.create({
         data: {
           bookingCode,
@@ -153,7 +150,7 @@ export const bookingResolvers = {
           contact,
           email,
           institution,
-          suratUrl,
+          suratUrl: normalizedSuratUrl,
           isAcademic,
           totalPrice,
           status: "PENDING",
