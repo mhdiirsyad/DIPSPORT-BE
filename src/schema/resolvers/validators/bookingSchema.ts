@@ -14,12 +14,11 @@ export const createBookingSchema = yup.object({
   email: yup.string().email("Email tidak valid").required("Email harus diisi"),
   institution: yup.string(),
   isAcademic: yup.boolean(),
-  suratUrl: yup
-    .string()
-    .trim()
-    .url("Surat harus berupa URL valid")
-    .nullable()
-    .optional(),
+  suratFile: yup.mixed().when("isAcademic", {
+    is: true,
+    then: (schema) => schema.required('Surat pengantar diperlukan untuk booking akademik'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   details: yup.array().of(bookingDetailSchema).min(1, "Mminimal 1 detail booking").required(),
 })
 

@@ -214,7 +214,7 @@ export default gql`
       contact: String!
       email: String!
       institution: String
-      suratUrl: String
+      suratFile: Upload
       isAcademic: Boolean
       details: [BookingDetailInput!]!
     ): Booking!
