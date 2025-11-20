@@ -3,6 +3,9 @@ import dayjs from "dayjs"
 import { v4 as uuidv4 } from "uuid"
 import { requireAuth } from "../../lib/context.js"
 import { createBookingSchema, updateBookingSchema, updatePaymenStatusSchema, } from "./validators/bookingSchema.js"
+import Upload from "graphql-upload/Upload.mjs"
+import { uploadToMinio } from "../../lib/uploadToMinio.js"
+import { minioClient, BUCKET } from "../../lib/minioClient.js"
 
 const DEFAULT_ACADEMIC_SURAT_URL = process.env.DEFAULT_ACADEMIC_SURAT_URL ?? "https://example.com/uploads/placeholder-surat.pdf"
 interface BookingArgs {
@@ -14,7 +17,7 @@ interface CreateBookingArgs {
   contact: string
   email: string
   institution?: string
-  suratUrl?: string
+  suratFile?: Upload
   isAcademic?: boolean
   details: BookingDetailInput[]
 }
@@ -100,10 +103,40 @@ export const bookingResolvers = {
   Mutation: {
     createBooking: async (_: unknown, args: CreateBookingArgs, { prisma }: ResolverContext) => {
       const validated = await createBookingSchema.validate(args, { abortEarly: false })
-      const { name, contact, email, institution, suratUrl, isAcademic = false, details } = validated
+      const { name, contact, email, institution, suratFile, isAcademic = false, details } = validated
+      let suratUrl = null;
+      let uploadedObjectName: string | null = null
 
       if (!details || !Array.isArray(details) || details.length === 0) {
         throw new Error("Detail booking harus diisi")
+      }
+
+      // If a suratFile Upload object is provided, resolve and upload it to MinIO
+      if (suratFile) {
+        // suratFile may be a promise-like upload object or a FileUpload with .promise
+        let resolvedFile: any
+        try {
+          if (typeof (suratFile as any).promise === 'function' || (suratFile as any).promise) {
+            resolvedFile = await (suratFile as any).promise
+          } else {
+            resolvedFile = suratFile
+          }
+        } catch (e) {
+          throw new Error('Gagal memproses file surat')
+        }
+
+        const mimetype = resolvedFile.mimetype || ''
+        if (!mimetype.includes('pdf')) {
+          throw new Error('Surat harus berformat PDF')
+        }
+
+        const uploadResult = await uploadToMinio(resolvedFile, 'surat')
+        suratUrl = uploadResult.publicUrl
+        uploadedObjectName = uploadResult.objectName
+      }
+
+      if (isAcademic && !suratUrl) {
+        throw new Error("Surat pengantar diperlukan untuk booking akademik")
       }
 
       const bookingCode = `DS-${uuidv4().split("-")[0]?.toUpperCase()}`
@@ -140,29 +173,41 @@ export const bookingResolvers = {
       )
 
       const totalPrice = isAcademic ? 0 : detailPayload.reduce((acc, curr) => acc + curr.subtotal, 0)
-
-      const normalizedSuratUrl = isAcademic ? suratUrl ?? DEFAULT_ACADEMIC_SURAT_URL : suratUrl ?? null
-
-      return prisma.booking.create({
-        data: {
-          bookingCode,
-          name,
-          contact,
-          email,
-          institution,
-          suratUrl: normalizedSuratUrl,
-          isAcademic,
-          totalPrice,
-          status: "PENDING",
-          paymentStatus: "UNPAID",
-          details: {
-            create: detailPayload,
+      try {
+        const booking = await prisma.booking.create({
+          data: {
+            bookingCode,
+            name,
+            contact,
+            email,
+            institution,
+            suratUrl,
+            isAcademic,
+            totalPrice,
+            status: "PENDING",
+            paymentStatus: "UNPAID",
+            details: {
+              create: detailPayload,
+            },
           },
-        },
-        include: {
-          details: true,
-        },
-      })
+          include: {
+            details: true,
+          },
+        })
+
+        return booking
+      } catch (err) {
+        // attempt to cleanup uploaded file if present
+        if (typeof uploadedObjectName === 'string' && uploadedObjectName) {
+          try {
+            await minioClient.removeObject(BUCKET, uploadedObjectName)
+          } catch (removeErr) {
+            // log and continue to throw original error
+            console.error('Failed to remove uploaded object after DB error:', removeErr)
+          }
+        }
+        throw err
+      }
     },
     updateStatusBooking: async (_: unknown, args: UpdateStatusArgs, { prisma, admin }: ResolverContext) => {
       requireAuth(admin)

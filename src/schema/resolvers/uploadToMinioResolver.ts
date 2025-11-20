@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import GraphQLUpload, { FileUpload } from "graphql-upload/GraphQLUpload.mjs";
 import { requireAuth } from "../../lib/context.js";
-import { uploadToMinio } from "../../lib/uploadImageMinio.js";
+import { uploadToMinio } from "../../lib/uploadToMinio.js";
 
 type ResolverContext = {
   prisma: PrismaClient;
@@ -24,10 +24,8 @@ async function handleImageUpload(
 
   const uploadedImages: string[] = [];
   for (const file of resolvedFiles) {
-    const {publicUrl, name} = await uploadToMinio(file, folder);
-    const url = await publicUrl
-    console.log(url)
-    uploadedImages.push(name);
+    const { publicUrl } = await uploadToMinio(file, folder);
+    uploadedImages.push(publicUrl);
   }
 
   await prismaCreateMany(
