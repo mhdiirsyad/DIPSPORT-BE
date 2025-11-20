@@ -7,6 +7,7 @@ import Upload from "graphql-upload/Upload.mjs"
 import { uploadToMinio } from "../../lib/uploadToMinio.js"
 import { minioClient, BUCKET } from "../../lib/minioClient.js"
 
+const DEFAULT_ACADEMIC_SURAT_URL = process.env.DEFAULT_ACADEMIC_SURAT_URL ?? "https://example.com/uploads/placeholder-surat.pdf"
 interface BookingArgs {
   bookingCode: string
 }
@@ -100,9 +101,7 @@ export const bookingResolvers = {
     },
   },
   Mutation: {
-    createBooking: async (_: unknown, args: CreateBookingArgs, { prisma, admin }: ResolverContext) => {
-      requireAuth(admin)
-
+    createBooking: async (_: unknown, args: CreateBookingArgs, { prisma }: ResolverContext) => {
       const validated = await createBookingSchema.validate(args, { abortEarly: false })
       const { name, contact, email, institution, suratFile, isAcademic = false, details } = validated
       let suratUrl = null;

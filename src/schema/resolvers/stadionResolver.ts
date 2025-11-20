@@ -1,9 +1,12 @@
-import type { PrismaClient } from "@prisma/client"
+import type { PrismaClient, Status } from "@prisma/client"
 import { requireAuth } from "../../lib/context.js"
-import { stadionCreateSchema, stadionUpdateSchema } from "./validators/stadionSchema.js"
+import {
+  stadionCreateSchema,
+  stadionUpdateSchema,
+  stadionDeleteSchema,
+} from "./validators/stadionSchema.js"
 
 type ID = number | string
-
 interface StadionArgs {
   stadionId: ID
 }
@@ -12,6 +15,8 @@ interface CreateStadionArgs {
   name: string
   description?: string
   mapUrl: string
+  status?: Status
+  facilityIds?: number[]
 }
 
 interface UpdateStadionArgs extends CreateStadionArgs {
@@ -39,7 +44,6 @@ export const stadionResolvers = {
           fields: true,
           facilities: true,
           images: true,
-          operatingHours: true,
         },
       })
     },
@@ -48,73 +52,95 @@ export const stadionResolvers = {
         where: { id: Number(stadionId) },
         include: {
           fields: true,
-          facilities: true,
+          facilities: { include: { Facility: true } },
           images: true,
-          operatingHours: true,
         },
       })
     },
   },
+
   Mutation: {
     createStadion: async (_: unknown, args: CreateStadionArgs, { prisma, admin }: ResolverContext) => {
       requireAuth(admin)
       const validated = await stadionCreateSchema.validate(args, { abortEarly: false })
-
+      const { name, description, mapUrl, status, facilityIds } = validated
+      const facilityData = (facilityIds || []).map((facId) => ({
+        Facility: { connect: { id: Number(facId) } },
+      }))
       return prisma.stadion.create({
-        data: {
-          name: validated.name,
-          description: validated.description,
-          mapUrl: validated.mapUrl,
-        },
-        include: {
-          fields: true,
-          facilities: true,
-          images: true,
-          operatingHours: true,
-        },
-      })
-    },
-    updateStadion: async (_: unknown, args: UpdateStadionArgs, { prisma, admin }: ResolverContext) => {
-      requireAuth(admin)
-      const validated = await stadionUpdateSchema.validate(args, { abortEarly: false })
-      const { stadionId, name, description, mapUrl } = validated
-
-      return prisma.stadion.update({
-        where: { id: Number(stadionId) },
         data: {
           name,
           description,
           mapUrl,
+          status,
+          facilities: { create: facilityData },
         },
+        include: {
+          fields: true,
+          facilities: { include: { Facility: true } },
+          images: true,
+        },
+      })
+    },
+
+    updateStadion: async (_: unknown, args: UpdateStadionArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
+      const validated = await stadionUpdateSchema.validate(args, { abortEarly: false })
+      const { stadionId, name, description, mapUrl, status, facilityIds } = validated
+      const id = Number(stadionId)
+      return prisma.$transaction(async (tx) => {
+        await tx.stadionFacility.deleteMany({ where: { stadionId: id } })
+        const newFacilityData = (facilityIds || []).map((facId) => ({
+          Facility: { connect: { id: Number(facId) } },
+        }))
+        const updatedStadion = await tx.stadion.update({
+          where: { id },
+          data: {
+            name,
+            description,
+            mapUrl,
+            status,
+            facilities: { create: newFacilityData },
+          },
+          include: {
+            fields: true,
+            facilities: { include: { Facility: true } },
+            images: true,
+          },
+        })
+        if (status === "INACTIVE") {
+          await tx.field.updateMany({
+            where: { stadionId: id },
+            data: { status: "INACTIVE" },
+          })
+        } else if (status == "ACTIVE") {
+          await tx.field.updateMany({
+            where: { stadionId: id },
+            data: { status: "ACTIVE" },
+          })
+        }
+        return updatedStadion
+      })
+    },
+    
+    deleteStadion: async (_: unknown, args: DeleteStadionArgs, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin)
+      const validated = await stadionDeleteSchema.validate(args, { abortEarly: false })
+      const id = Number(validated.stadionId)
+      return prisma.stadion.delete({
+        where: { id },
         include: {
           fields: true,
           facilities: true,
           images: true,
-          operatingHours: true,
         },
       })
     },
-    deleteStadion: async (_: unknown, { stadionId }: DeleteStadionArgs, { prisma, admin }: ResolverContext) => {
-      requireAuth(admin)
+  },
+}
 
-      const id = Number(stadionId)
-
-      return prisma.$transaction(async (tx) => {
-        await tx.stadionFacility.deleteMany({ where: { stadionId: id } })
-        await tx.imageStadion.deleteMany({ where: { stadionId: id } })
-        await tx.operatingHour.deleteMany({ where: { stadionId: id } })
-        await tx.field.deleteMany({ where: { stadionId: id } })
-
-        return tx.stadion.delete({
-          where: { id },
-          include: {
-            fields: true,
-            facilities: true,
-            images: true,
-            operatingHours: true,
-          },
-        })
-      })
-    },
+export const stadionFieldResolvers = {
+  operatingHours: async (_: unknown, __: unknown, { prisma }: ResolverContext) => {
+    return prisma.operatingHour.findUnique({ where: { id: 1 } })
   },
 }
