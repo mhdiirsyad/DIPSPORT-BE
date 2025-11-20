@@ -136,6 +136,42 @@ export default gql`
     imageUrls: [String!]!
   }
 
+  type DailyBookingCount {
+    date: String!
+    count: Int!
+  }
+
+  type DailySlot {
+    date: String!
+    bookedHours: Int!
+    availableHours: Int!
+  }
+
+  type UserDemographic {
+    category: String!
+    count: Int!
+  }
+  
+  type FieldRevenue {
+    fieldId: ID!
+    fieldName: String!
+    revenue: Int!
+    percentage: Float!
+  }
+
+  type DashboardStats {
+    totalStadions: Int!
+    totalFields: Int!
+    totalBookings: Int!
+    pendingBookings: Int!
+    revenueYTD: Int!
+    dailyBookings: [DailyBookingCount!]!
+    weeklySlots: [DailySlot!]!
+    recentBookings: [Booking!]!
+    userDemographics: [UserDemographic!]!
+    fieldRevenues: [FieldRevenue!]!
+  }
+
   type Query {
     stadions: [Stadion!]
     stadion(stadionId: ID!): Stadion
@@ -147,6 +183,7 @@ export default gql`
     me: Admin
     facilities: [Facility!]
     facility(facilityId: ID!): Facility
+    getDashboardStats(startDate: String, endDate: String, stadionId: ID): DashboardStats!
   }
 
   input FieldImageInput {
