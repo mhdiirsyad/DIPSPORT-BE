@@ -1,4 +1,7 @@
-import * as yup from "yup"
+import * as yup from "yup";
+import { Status } from "@prisma/client";
+
+const statusValues = Object.values(Status);
 
 const imageSchema = yup
   .object({
@@ -9,7 +12,7 @@ const imageSchema = yup
       .matches(/^https?:\/\//i, "URL gambar harus dimulai dengan http atau https")
       .required("URL gambar wajib diisi"),
   })
-  .strict(true)
+  .strict(true);
 
 export const fieldCreateSchema = yup
   .object({
@@ -25,7 +28,11 @@ export const fieldCreateSchema = yup
       .min(3, "Nama lapangan minimal 3 karakter")
       .max(100, "Nama lapangan maksimal 100 karakter")
       .required("Nama lapangan wajib diisi"),
-    description: yup.string().trim().max(1000, "Deskripsi maksimal 1000 karakter").optional(),
+    description: yup
+      .string()
+      .trim()
+      .max(1000, "Deskripsi maksimal 1000 karakter")
+      .optional(),
     pricePerHour: yup
       .number()
       .typeError("Harga per jam harus berupa angka")
@@ -33,14 +40,33 @@ export const fieldCreateSchema = yup
       .positive("Harga per jam harus lebih besar dari 0")
       .max(5000000, "Harga per jam terlalu besar")
       .required("Harga per jam wajib diisi"),
-    images: yup.array().of(imageSchema).max(10, "Maksimal 10 gambar").optional(),
+    images: yup
+      .array()
+      .of(imageSchema)
+      .max(10, "Maksimal 10 gambar")
+      .optional()
+      .nullable(),
+    status: yup
+      .mixed<Status>()
+      .oneOf(statusValues, `Status tidak valid. Pilihan: ${statusValues.join(", ")}`)
+      .optional()
+      .nullable(),
   })
-  .strict(true)
+  .strict(true);
 
-export const fieldUpdateSchema = fieldCreateSchema.shape({ 
-  fieldId: yup 
+export const fieldUpdateSchema = fieldCreateSchema.shape({
+  fieldId: yup
     .string()
     .trim()
     .matches(/^\d+$/, "fieldId harus berupa angka")
     .required("fieldId wajib diisi"),
+});
+
+export const fieldDeleteSchema = yup.object({
+  fieldId: yup
+    .string()
+    .trim()
+    .matches(/^\d+$/, "fieldId harus berupa string angka")
+    .required("fieldId wajib diisi"),
 })
+.strict(true);

@@ -11,19 +11,14 @@ export default gql`
     DONE
   }
 
+  enum Status {
+    ACTIVE
+    INACTIVE
+  }
+
   enum PaymentStatus {
     UNPAID
     PAID
-  }
-
-  enum DayofWeek {
-    SENIN
-    SELASA
-    RABU
-    KAMIS
-    JUMAT
-    SABTU
-    MINGGU
   }
 
   type Stadion {
@@ -31,10 +26,11 @@ export default gql`
     name: String!
     description: String
     mapUrl: String!
+    status: Status!
     facilities: [StadionFacility!]
     fields: [Field!]
     images: [ImageStadion!]
-    operatingHours: [OperatingHour!]
+    operatingHours: OperatingHour
   }
 
   type StadionFacility {
@@ -48,6 +44,7 @@ export default gql`
   type Facility {
     id: ID!
     name: String!
+    icon: String
     stadionFacilities: [StadionFacility!]
   }
 
@@ -57,6 +54,7 @@ export default gql`
     name: String!
     description: String
     pricePerHour: Int!
+    status: Status!
     images: [ImageField!]
     bookingDetails: [BookingDetail!]
     Stadion: Stadion
@@ -106,11 +104,8 @@ export default gql`
 
   type OperatingHour {
     id: ID!
-    day: DayofWeek!
-    openTime: DateTime!
-    closeTime: DateTime!
-    stadionId: Int!
-    Stadion: Stadion
+    openHour: Int!
+    closeHour: Int!
   }
 
   type AdminLog {
@@ -148,8 +143,10 @@ export default gql`
     field(fieldId: ID!): Field
     bookings(stadionId: ID, date: DateTime): [Booking!]
     booking(bookingCode: String!): Booking
-    operatingHoursByStadion(stadionId: Int!): [OperatingHour]
+    operatingHours: OperatingHour
     me: Admin
+    facilities: [Facility!]
+    facility(facilityId: ID!): Facility
   }
 
   input FieldImageInput {
@@ -172,6 +169,8 @@ export default gql`
       name: String!
       description: String
       mapUrl: String!
+      status: Status
+      facilityIds: [Int]
     ): Stadion!
 
     updateStadion(
@@ -179,6 +178,8 @@ export default gql`
       name: String!
       description: String
       mapUrl: String!
+      status: Status
+      facilityIds: [Int]
     ): Stadion!
 
     deleteStadion(
@@ -191,6 +192,7 @@ export default gql`
       description: String
       pricePerHour: Int!
       images: [FieldImageInput!]
+      status: Status
     ): Field!
 
     updateField(
@@ -200,6 +202,7 @@ export default gql`
       description: String
       pricePerHour: Int!
       images: [FieldImageInput!]
+      status: Status
     ): Field!
 
     deleteField(
@@ -226,22 +229,9 @@ export default gql`
       paymentStatus: PaymentStatus!
     ): Booking!
 
-    createOperatingHour(
-      stadionId: Int! 
-      day: DayofWeek!
-      openTime: DateTime!
-      closeTime: DateTime!
-    ): OperatingHour
-
     updateOperatingHour(
-      id: Int!
-      day: DayofWeek!
-      openTime: DateTime!
-      closeTime: DateTime!
-    ): OperatingHour
-
-    deleteOperatingHour(
-      id: Int!
+      openHour: Int!
+      closeHour: Int!
     ): OperatingHour
 
     uploadStadionImages(
@@ -253,5 +243,20 @@ export default gql`
       stadionId: Int!
       files: [Upload!]!
     ): uploadResponse!
+
+    createFacility(
+      name: String!
+      icon: String
+    ): Facility!
+
+    updateFacility(
+      facilityId: ID!
+      name: String!
+      icon: String
+    ): Facility!
+
+    deleteFacility(
+      facilityId: ID!
+    ): Facility!
   }
 `
