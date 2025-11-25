@@ -1,7 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -23,6 +21,7 @@ model Stadion {
   description String?
   mapUrl String
   status Status @default(ACTIVE)
+  deletedAt DateTime?
   facilities StadionFacility[]
   fields Field[]
   images ImageStadion[]
@@ -32,7 +31,7 @@ model StadionFacility {
   id Int @id @default(autoincrement())
   stadionId Int
   facilityId Int
-  Stadion Stadion @relation(fields: [stadionId], references: [id], onDelete: Cascade)
+  Stadion Stadion @relation(fields: [stadionId], references: [id], onDelete: Restrict)
   Facility Facility @relation(fields: [facilityId], references: [id])
 }
 
@@ -40,6 +39,7 @@ model Facility {
   id Int @id @default(autoincrement())
   name String
   icon String?
+  deletedAt DateTime?
   stadionFacilities StadionFacility[]
 }
 
@@ -50,9 +50,11 @@ model Field {
   description String?
   pricePerHour Int
   status Status @default(ACTIVE)
+  deletedAt DateTime?
   images ImageField[]
   bookingDetails BookingDetail[]
-  Stadion Stadion @relation(fields: [stadionId], references: [id], onDelete: Cascade)
+  Stadion Stadion @relation(fields: [stadionId], references: [id], onDelete: Restrict)
+  
   @@index([stadionId])
 }
 
@@ -92,11 +94,11 @@ model Booking {
   suratUrl String?
   isAcademic Boolean @default(false)
   totalPrice Int
-  status BookingStatus @default(PENDING) // status proses booking
-  paymentStatus PaymentStatus  @default(UNPAID) // status proses bayar buat audit misal yang pake surat atau ga
+  status BookingStatus @default(PENDING)
+  paymentStatus PaymentStatus  @default(UNPAID)
   createdAt DateTime @default(now())
   details BookingDetail[]
-  // buat peforma di admin
+  
   @@index([status, createdAt])
   @@index([paymentStatus])
 }
@@ -109,9 +111,10 @@ model BookingDetail {
   startHour Int
   pricePerHour Int
   subtotal Int
-  createdAt DateTime @default(now()) // tambahan buat dijadiin waktu kunci slot
+  createdAt DateTime @default(now())
   Booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  Field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  Field Field @relation(fields: [fieldId], references: [id], onDelete: Restrict)
+  
   @@unique([fieldId, bookingDate, startHour])
   @@index([fieldId, bookingDate])
 }
@@ -127,7 +130,7 @@ model OperatingHour {
 model Admin {
   id Int @id @default(autoincrement())
   name String
-  email String? @unique // Tambahan
+  email String? @unique
   password String
   adminLogs AdminLog[]
 
