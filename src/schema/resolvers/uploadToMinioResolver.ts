@@ -138,5 +138,41 @@ export const fieldImageResolvers = {
 
       return result;
     },
+
+    deleteFieldImage: async (_: unknown, { imageId }: { imageId: number }, { prisma, admin }: ResolverContext) => {
+      requireAuth(admin);
+
+      const img = await prisma.imageField.findUnique({ where: { id: Number(imageId) } });
+      if (!img) throw new Error('Image tidak ditemukan');
+
+      // Try to remove object from MinIO. Derive objectName from stored imageUrl.
+      try {
+        const prefix = `https://${PUBLIC_URL}/${BUCKET}/`;
+        let objectName = img.imageUrl;
+        if (objectName.startsWith(prefix)) {
+          objectName = objectName.slice(prefix.length);
+        } else {
+          // fallback: try to extract after bucket name
+          const bucketMarker = `/${BUCKET}/`;
+          const idx = img.imageUrl.indexOf(bucketMarker);
+          if (idx !== -1) {
+            objectName = img.imageUrl.slice(idx + bucketMarker.length);
+          }
+        }
+
+        if (objectName) {
+          // best-effort remove from MinIO
+          // @ts-ignore
+          await minioClient.removeObject(BUCKET, objectName);
+        }
+      } catch (e) {
+        // ignore MinIO deletion errors, proceed to remove DB record
+        const emsg = (e as any)?.message ?? String(e);
+        console.warn('Failed to delete MinIO object for image', imageId, emsg);
+      }
+
+      const deleted = await prisma.imageField.delete({ where: { id: Number(imageId) } });
+      return deleted;
+    },
   },
 };

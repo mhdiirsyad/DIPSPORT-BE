@@ -285,6 +285,10 @@ export default gql`
       files: [Upload!]!
     ): uploadResponse!
 
+    deleteFieldImage(
+      imageId: ID!
+    ): ImageField!
+
     createFacility(
       name: String!
       icon: String
