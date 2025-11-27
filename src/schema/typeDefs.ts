@@ -276,6 +276,10 @@ export default gql`
       files: [Upload!]!
     ): uploadResponse!
 
+    deleteStadionImage(
+      imageId: ID!
+    ): ImageStadion!
+
     uploadFieldImages(
       fieldId: Int!
       files: [Upload!]!
