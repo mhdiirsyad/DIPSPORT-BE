@@ -149,16 +149,14 @@ export const bookingResolvers = {
           if (bookingDate.isBefore(today.add(1, "day"))) {
             throw new Error("Maksimal booking harus dilakukan minimal H-1")
           }
-          const field = await prisma.field.findFirst({
-            where: { 
-              id: item.fieldId,
-              deletedAt: null
-            },
+
+          const field = await prisma.field.findUnique({
+            where: { id: item.fieldId },
             select: { pricePerHour: true },
           })
 
           if (!field) {
-            throw new Error(`Field ID ${item.fieldId} tidak tersedia (dihapus/tidak ditemukan).`)
+            throw new Error("Field tidak ditemukan")
           }
 
           const pricePerHour = item.pricePerHour ?? field.pricePerHour
@@ -199,10 +197,12 @@ export const bookingResolvers = {
 
         return booking
       } catch (err) {
+        // attempt to cleanup uploaded file if present
         if (typeof uploadedObjectName === 'string' && uploadedObjectName) {
           try {
             await minioClient.removeObject(BUCKET, uploadedObjectName)
           } catch (removeErr) {
+            // log and continue to throw original error
             console.error('Failed to remove uploaded object after DB error:', removeErr)
           }
         }
@@ -214,6 +214,21 @@ export const bookingResolvers = {
 
       const validated = await updateBookingSchema.validate(args, { abortEarly: false })
       const { bookingCode, status } = validated
+      // If booking is being cancelled, release all booked details so others can book the same slots.
+      if (status === 'CANCELLED') {
+        // Find booking first
+        const booking = await prisma.booking.findUnique({ where: { bookingCode }, select: { id: true } })
+        if (!booking) throw new Error('Booking not found')
+
+        // Use a transaction: delete details, then update booking status
+        const [ , updated ] = await prisma.$transaction([
+          prisma.bookingDetail.deleteMany({ where: { bookingId: booking.id } }),
+          prisma.booking.update({ where: { bookingCode }, data: { status }, include: { details: true } }),
+        ])
+
+        return updated
+      }
+
       return prisma.booking.update({
         where: { bookingCode },
         data: {

@@ -277,7 +277,7 @@ export default gql`
     ): uploadResponse!
 
     uploadFieldImages(
-      stadionId: Int!
+      fieldId: Int!
       files: [Upload!]!
     ): uploadResponse!
 
