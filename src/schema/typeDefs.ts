@@ -254,6 +254,8 @@ export default gql`
       suratFile: Upload
       isAcademic: Boolean
       details: [BookingDetailInput!]!
+      status: BookingStatus
+      paymentStatus: PaymentStatus
     ): Booking!
 
     updateStatusBooking(
