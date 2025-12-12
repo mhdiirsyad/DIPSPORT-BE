@@ -23,6 +23,7 @@ interface CreateBookingArgs {
   institution?: string
   suratFile?: Upload
   isAcademic?: boolean
+  status?: BookingStatus
   details: BookingDetailInput[]
 }
 
@@ -127,7 +128,7 @@ export const bookingResolvers = {
   Mutation: {
     createBooking: async (_: unknown, args: CreateBookingArgs, { prisma }: ResolverContext) => {
       const validated = await createBookingSchema.validate(args, { abortEarly: false })
-      const { name, contact, email, institution, suratFile, isAcademic = false, details } = validated
+      const { name, contact, email, institution, suratFile, isAcademic = false, details, status, paymentStatus } = validated
       let suratUrl = null;
       let uploadedObjectName: string | null = null
 
@@ -157,9 +158,9 @@ export const bookingResolvers = {
         uploadedObjectName = uploadResult.objectName
       }
 
-      if (isAcademic && !suratUrl) {
-        throw new Error("Surat pengantar diperlukan untuk booking akademik")
-      }
+      // if (isAcademic && !suratUrl) {
+      //   throw new Error("Surat pengantar diperlukan untuk booking akademik")
+      // }
 
       const bookingCode = `DS-${uuidv4().split("-")[0]?.toUpperCase()}`
       const today = dayjs().startOf("day")
@@ -206,8 +207,8 @@ export const bookingResolvers = {
             suratUrl,
             isAcademic,
             totalPrice,
-            status: "PENDING",
-            paymentStatus: "UNPAID",
+            status: status ?? "PENDING",
+            paymentStatus: paymentStatus ?? "UNPAID",
             details: {
               create: detailPayload,
             },
