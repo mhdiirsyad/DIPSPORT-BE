@@ -14,11 +14,14 @@ export const createBookingSchema = yup.object({
   email: yup.string().email("Email tidak valid").required("Email harus diisi"),
   institution: yup.string().nullable().notRequired(),
   isAcademic: yup.boolean(),
-  suratFile: yup.mixed().when("isAcademic", {
-    is: true,
-    then: (schema) => schema.required('Surat pengantar diperlukan untuk booking akademik'),
-    otherwise: (schema) => schema.notRequired(),
-  }),
+  status: yup.string().oneOf(["PENDING", "APPROVED", "CANCELLED", "DONE"]).notRequired(),
+  paymentStatus: yup.string().oneOf(["PAID", "UNPAID"]).notRequired(),
+  // suratFile: yup.mixed().when("isAcademic", {
+  //   is: true,
+  //   then: (schema) => schema.required('Surat pengantar diperlukan untuk booking akademik'),
+  //   otherwise: (schema) => schema.notRequired(),
+  // }),
+  suratFile: yup.mixed().notRequired(),
   details: yup.array().of(bookingDetailSchema).min(1, "Mminimal 1 detail booking").required(),
 })
 
