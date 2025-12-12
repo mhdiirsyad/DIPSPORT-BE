@@ -10,6 +10,10 @@ import { minioClient, BUCKET } from "../../lib/minioClient.js"
 const DEFAULT_ACADEMIC_SURAT_URL = process.env.DEFAULT_ACADEMIC_SURAT_URL ?? "https://example.com/uploads/placeholder-surat.pdf"
 interface BookingArgs {
   bookingCode: string
+  stadionId?: number | string
+  date?: Date
+  startDate?: Date
+  endDate?: Date
 }
 
 interface CreateBookingArgs {
@@ -51,7 +55,7 @@ type ResolverContext = {
 
 export const bookingResolvers = {
   Query: {
-    bookings: async (_: unknown, args: {stadionId?: number | string, date?: Date}, { prisma }: ResolverContext) => {
+    bookings: async (_: unknown, args: BookingArgs, { prisma }: ResolverContext) => {
       const filters: any = {}
 
       if(args.stadionId){
@@ -64,17 +68,37 @@ export const bookingResolvers = {
         }
       }
 
-      if(args.date){
+      if (args.date) {
+        // MODE HARIAN (Specific Date)
         const selectedDate = new Date(args.date)
-        filters.details = {
-          ...filters.details,
-          some: {
-            ...filters.details?.some,
+        const dateFilter = {
             bookingDate: {
               gte: new Date(selectedDate.setHours(0, 0, 0, 0)),
               lt: new Date(selectedDate.setHours(23, 59, 59, 999)),
             }
-          }
+        }
+
+        // Merge logic
+        if (filters.details) {
+            filters.details.some = { ...filters.details.some, ...dateFilter }
+        } else {
+            filters.details = { some: dateFilter }
+        }
+
+      } else if (args.startDate && args.endDate) {
+        // MODE RENTANG (Range Date) - INI LOGIKANYA
+        const rangeFilter = {
+            bookingDate: {
+              gte: new Date(args.startDate), // Tanggal Awal
+              lte: new Date(args.endDate)    // Tanggal Akhir
+            }
+        }
+
+        // Merge logic
+        if (filters.details) {
+            filters.details.some = { ...filters.details.some, ...rangeFilter }
+        } else {
+            filters.details = { some: rangeFilter }
         }
       }
       return prisma.booking.findMany({
@@ -111,9 +135,7 @@ export const bookingResolvers = {
         throw new Error("Detail booking harus diisi")
       }
 
-      // If a suratFile Upload object is provided, resolve and upload it to MinIO
       if (suratFile) {
-        // suratFile may be a promise-like upload object or a FileUpload with .promise
         let resolvedFile: any
         try {
           if (typeof (suratFile as any).promise === 'function' || (suratFile as any).promise) {
@@ -197,12 +219,10 @@ export const bookingResolvers = {
 
         return booking
       } catch (err) {
-        // attempt to cleanup uploaded file if present
         if (typeof uploadedObjectName === 'string' && uploadedObjectName) {
           try {
             await minioClient.removeObject(BUCKET, uploadedObjectName)
           } catch (removeErr) {
-            // log and continue to throw original error
             console.error('Failed to remove uploaded object after DB error:', removeErr)
           }
         }
@@ -214,13 +234,11 @@ export const bookingResolvers = {
 
       const validated = await updateBookingSchema.validate(args, { abortEarly: false })
       const { bookingCode, status } = validated
-      // If booking is being cancelled, release all booked details so others can book the same slots.
       if (status === 'CANCELLED') {
         // Find booking first
         const booking = await prisma.booking.findUnique({ where: { bookingCode }, select: { id: true } })
         if (!booking) throw new Error('Booking not found')
 
-        // Use a transaction: delete details, then update booking status
         const [ , updated ] = await prisma.$transaction([
           prisma.bookingDetail.deleteMany({ where: { bookingId: booking.id } }),
           prisma.booking.update({ where: { bookingCode }, data: { status }, include: { details: true } }),

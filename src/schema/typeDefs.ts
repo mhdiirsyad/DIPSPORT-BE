@@ -151,39 +151,18 @@ export default gql`
     category: String!
     count: Int!
   }
-  
-  type FieldRevenue {
-    fieldId: ID!
-    fieldName: String!
-    revenue: Int!
-    percentage: Float!
-  }
-
-  type DashboardStats {
-    totalStadions: Int!
-    totalFields: Int!
-    totalBookings: Int!
-    pendingBookings: Int!
-    revenueYTD: Int!
-    dailyBookings: [DailyBookingCount!]!
-    weeklySlots: [DailySlot!]!
-    recentBookings: [Booking!]!
-    userDemographics: [UserDemographic!]!
-    fieldRevenues: [FieldRevenue!]!
-  }
 
   type Query {
     stadions: [Stadion!]
     stadion(stadionId: ID!): Stadion
     fields(stadionId: ID): [Field!]
     field(fieldId: ID!): Field
-    bookings(stadionId: ID, date: DateTime): [Booking!]
+    bookings(stadionId: ID, date: DateTime, startDate: DateTime, endDate: DateTime): [Booking!]
     booking(bookingCode: String!): Booking
     operatingHours: OperatingHour
     me: Admin
     facilities: [Facility!]
     facility(facilityId: ID!): Facility
-    getDashboardStats(startDate: String, endDate: String, stadionId: ID): DashboardStats!
   }
 
   input FieldImageInput {

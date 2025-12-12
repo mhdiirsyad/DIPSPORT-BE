@@ -9,7 +9,6 @@ import { bookingResolvers } from "./bookingResolver.js"
 import { operatingHourResolvers } from "./operatingHourResolver.js"
 import { fieldImageResolvers, stadionImageResolvers } from "./uploadToMinioResolver.js"
 import { facilityResolvers } from "./facilityResolver.js"
-import { dashboardResolvers } from "./dashboardResolvers.js"
 
 type ResolverContext = {
   prisma: PrismaClient
@@ -27,7 +26,6 @@ const resolvers = {
     ...bookingResolvers.Query,
     ...operatingHourResolvers.Query,
     ...facilityResolvers.Query,
-    ...dashboardResolvers.Query,
     me: async (_: unknown, __: unknown, { prisma, admin }: ResolverContext) => {
       const currentAdmin = requireAuth(admin)
 

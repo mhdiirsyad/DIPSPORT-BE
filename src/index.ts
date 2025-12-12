@@ -30,7 +30,6 @@ const normalizeGraphQLBody: express.RequestHandler = (req, _res, next) => {
       try {
         entry.variables = JSON.parse(entry.variables)
       } catch {
-        // Keep original string so Apollo can surface a useful error
       }
     }
 
@@ -38,7 +37,6 @@ const normalizeGraphQLBody: express.RequestHandler = (req, _res, next) => {
       try {
         entry.extensions = JSON.parse(entry.extensions)
       } catch {
-        // Same reasoning as above
       }
     }
 
@@ -49,7 +47,6 @@ const normalizeGraphQLBody: express.RequestHandler = (req, _res, next) => {
       try {
         entry.query = print(entry.query as DocumentNode)
       } catch {
-        // Fall back to default Apollo error if conversion fails
       }
     }
   }
