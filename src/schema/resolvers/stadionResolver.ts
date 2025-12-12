@@ -33,7 +33,7 @@ export const stadionResolvers = {
       return prisma.stadion.findFirst({
         where: { id: Number(stadionId), deletedAt: null },
         include: {
-          fields: { where: { deletedAt: null } },
+          fields: { where: { deletedAt: null }, include: { images: true } },
           facilities: { include: { Facility: true } },
           images: true,
         },

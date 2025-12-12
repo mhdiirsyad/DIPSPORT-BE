@@ -254,6 +254,8 @@ export default gql`
       suratFile: Upload
       isAcademic: Boolean
       details: [BookingDetailInput!]!
+      status: BookingStatus
+      paymentStatus: PaymentStatus
     ): Booking!
 
     updateStatusBooking(
@@ -276,10 +278,18 @@ export default gql`
       files: [Upload!]!
     ): uploadResponse!
 
+    deleteStadionImage(
+      imageId: ID!
+    ): ImageStadion!
+
     uploadFieldImages(
-      stadionId: Int!
+      fieldId: Int!
       files: [Upload!]!
     ): uploadResponse!
+
+    deleteFieldImage(
+      imageId: ID!
+    ): ImageField!
 
     createFacility(
       name: String!
