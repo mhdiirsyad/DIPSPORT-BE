@@ -206,7 +206,7 @@ export default gql`
       stadionId: Int!
       name: String!
       description: String
-      pricePerHour: Int!
+      pricePerHour: Int
       images: [FieldImageInput!]
       status: Status
     ): Field!
@@ -216,7 +216,7 @@ export default gql`
       stadionId: Int!
       name: String!
       description: String
-      pricePerHour: Int!
+      pricePerHour: Int
       images: [FieldImageInput!]
       status: Status
     ): Field!

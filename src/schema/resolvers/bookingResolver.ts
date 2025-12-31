@@ -182,8 +182,8 @@ export const bookingResolvers = {
             throw new Error("Field tidak ditemukan")
           }
 
-          const pricePerHour = item.pricePerHour ?? field.pricePerHour
-          const subtotal = item.subtotal ?? pricePerHour
+          const pricePerHour = item.pricePerHour ?? field.pricePerHour ?? 0
+          const subtotal = item.subtotal ?? (pricePerHour * 1)
 
           return {
             fieldId: item.fieldId,
