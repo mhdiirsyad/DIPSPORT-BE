@@ -32,7 +32,8 @@
 - [Architecture](#-architecture)
 - [Development](#-development)
 - [Deployment](#-deployment)
-- [Contributing](#-contributing)
+- [Configuration Notes](#-configuration-notes)
+- [Team](#-team)
 - [License](#-license)
 
 ---
@@ -152,8 +153,7 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-# TODO: Ganti <repository-url> dengan URL repository GitHub Anda
-git clone <repository-url>
+git clone https://github.com/dipo-devs/DIPSPORT-BE.git
 cd DIPSPORT-BE
 ```
 
@@ -184,7 +184,7 @@ MINIO_PORT=9000
 MINIO_USE_SSL=false
 MINIO_ACCESS_KEY=your-minio-access-key
 MINIO_SECRET_KEY=your-minio-secret-key
-MINIO_BUCKET_NAME=dipsport-bucket
+MINIO_BUCKET_NAME=bucket_name
 
 # CORS Configuration
 CORS_ORIGINS=http://localhost:3000,http://localhost:5173
@@ -368,44 +368,44 @@ mutation UploadFile($file: Upload!, $folder: String!) {
 ```
 DIPSPORT-BE/
 ├── prisma/
-│   ├── schema.prisma              # Database schema definition
-│   ├── seed.ts                    # Database seeding script
-│   └── migrations/                # Database migration files
+│   ├── schema.prisma                       # Database schema definition
+│   ├── seed.ts                             # Database seeding script
+│   └── migrations/                         # Database migration files
 │
 ├── src/
-│   ├── index.ts                   # Application entry point
+│   ├── index.ts                            # Application entry point
 │   │
 │   ├── lib/
-│   │   ├── auth.ts                # JWT authentication utilities
-│   │   ├── context.ts             # GraphQL context builder
-│   │   ├── prisma.ts              # Prisma client instance
-│   │   ├── minioClient.ts         # MinIO client configuration
-│   │   └── uploadToMinio.ts       # File upload helper
+│   │   ├── auth.ts                         # JWT authentication utilities
+│   │   ├── context.ts                      # GraphQL context builder
+│   │   ├── prisma.ts                       # Prisma client instance
+│   │   ├── minioClient.ts                  # MinIO client configuration
+│   │   └── uploadToMinio.ts                # File upload helper
 │   │
 │   └── schema/
-│       ├── typeDefs.ts            # GraphQL type definitions
+│       ├── typeDefs.ts                     # GraphQL type definitions
 │       │
 │       └── resolvers/
-│           ├── index.ts           # Resolver aggregator
-│           ├── stadionResolver.ts # Stadium operations
-│           ├── fieldResolver.ts   # Field operations
-│           ├── facilityResolver.ts # Facility operations
-│           ├── bookingResolver.ts # Booking operations
-│           ├── operatingHourResolver.ts # Hours management
-│           ├── uploadToMinioResolver.ts # File uploads
+│           ├── index.ts                    # Resolver aggregator
+│           ├── stadionResolver.ts          # Stadium operations
+│           ├── fieldResolver.ts            # Field operations
+│           ├── facilityResolver.ts         # Facility operations
+│           ├── bookingResolver.ts          # Booking operations
+│           ├── operatingHourResolver.ts    # Hours management
+│           ├── uploadToMinioResolver.ts    # File uploads
 │           │
-│           └── validators/        # Input validation schemas
+│           └── validators/                 # Input validation schemas
 │               ├── stadionSchema.ts
 │               ├── fieldSchema.ts
 │               ├── facilitySchema.ts
 │               ├── bookingSchema.ts
 │               └── operatingHourSchema.ts
 │
-├── .env                           # Environment variables
-├── package.json                   # Project dependencies
-├── tsconfig.json                  # TypeScript configuration
-├── prisma.config.ts               # Prisma configuration
-└── README.md                      # Project documentation
+├── .env                                    # Environment variables
+├── package.json                            # Project dependencies
+├── tsconfig.json                           # TypeScript configuration
+├── prisma.config.ts                        # Prisma configuration
+└── README.md                               # Project documentation
 ```
 
 ---
@@ -425,13 +425,13 @@ DIPSPORT-BE/
 ┌────────────────────────▼─────────────────────────────────────┐
 │                   API Gateway Layer                          │
 │                                                              │
-│  ┌──────────────┐   ┌───────────────┐   ┌───────────────┐  │
-│  │   Express    │──▶│ Apollo Server │──▶│ GraphQL API   │  │
-│  └──────────────┘   └───────────────┘   └───────────────┘  │
+│  ┌──────────────┐   ┌───────────────┐   ┌───────────────┐    │
+│  │   Express    │──▶│ Apollo Server │──▶│ GraphQL API  │    │
+│  └──────────────┘   └───────────────┘   └───────────────┘    │
 │                                                              │
-│  ┌──────────────┐   ┌───────────────┐                      │
-│  │ CORS + Auth  │   │  File Upload  │                      │
-│  └──────────────┘   └───────────────┘                      │
+│  ┌──────────────┐   ┌───────────────┐                        │
+│  │ CORS + Auth  │   │  File Upload  │                        │
+│  └──────────────┘   └───────────────┘                        │
 └────────────────────────┬─────────────────────────────────────┘
                          │
            ┌─────────────┼─────────────┐
@@ -439,13 +439,13 @@ DIPSPORT-BE/
 ┌──────────▼──────────┐  │  ┌──────────▼──────────┐
 │   Business Logic    │  │  │   Data Access       │
 │                     │  │  │                     │
-│  ┌───────────────┐  │  │  │  ┌──────────────┐  │
-│  │  Resolvers    │  │  │  │  │   Prisma     │  │
-│  └───────────────┘  │  │  │  └──────────────┘  │
+│  ┌───────────────┐  │  │  │  ┌──────────────┐   │
+│  │  Resolvers    │  │  │  │  │   Prisma     │   │
+│  └───────────────┘  │  │  │  └──────────────┘   │
 │                     │  │  │                     │
-│  ┌───────────────┐  │  │  │  ┌──────────────┐  │
-│  │  Validators   │  │  │  │  │    MySQL     │  │
-│  └───────────────┘  │  │  │  └──────────────┘  │
+│  ┌───────────────┐  │  │  │  ┌──────────────┐   │
+│  │  Validators   │  │  │  │  │    MySQL     │   │
+│  └───────────────┘  │  │  │  └──────────────┘   │
 └─────────────────────┘  │  └─────────────────────┘
                          │
                   ┌──────▼──────┐
@@ -552,102 +552,38 @@ EXPOSE 4000
 CMD ["npm", "start"]
 ```
 
-### PM2 Configuration
-
-```javascript
-// ecosystem.config.js
-module.exports = {
-  apps: [{
-    name: 'dipsport-api',
-    script: './dist/index.js',
-    instances: 'max',
-    exec_mode: 'cluster',
-    env: {
-      NODE_ENV: 'production'
-    }
-  }]
-}
-```
-
 ---
 
-## 🤝 Contributing
+## ⚙️ Configuration Notes
 
-We welcome contributions! Please follow these guidelines:
+### Generate JWT Secret
 
-1. **Fork the repository**
-2. **Create a feature branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit your changes** (`git commit -m 'Add some AmazingFeature'`)
-4. **Push to the branch** (`git push origin feature/AmazingFeature`)
-5. **Open a Pull Request**
-
-### Coding Standards
-
-- Use TypeScript for all new code
-- Follow existing code style
-- Add comments for complex logic
-- Update documentation for API changes
-- Test your changes thoroughly
-
----
-
-## ⚠️ Checklist: Yang Perlu Anda Isi Sendiri
-
-Sebelum mempublikasikan project ini, pastikan Anda mengisi bagian-bagian berikut:
-
-### 🔴 **Wajib Diisi:**
-
-1. **Repository URL** (Baris ~174)
-   ```bash
-   git clone <repository-url>  # ← Ganti dengan URL GitHub Anda
-   ```
-
-2. **Environment Variables** (File `.env`)
-   - `MYSQL_URL` - Connection string database MySQL Anda
-   - `JWT_SECRET` - Generate secret key yang kuat (misal: gunakan `openssl rand -base64 32`)
-   - `MINIO_ENDPOINT` - Endpoint server MinIO Anda
-   - `MINIO_ACCESS_KEY` - Access key MinIO
-   - `MINIO_SECRET_KEY` - Secret key MinIO
-   - `MINIO_BUCKET_NAME` - Nama bucket yang akan digunakan
-
-3. **Contact Information** (Section Support)
-   - Email support
-   - Link GitHub Issues
-   - Link dokumentasi/wiki (jika ada)
-
-### 🟡 **Opsional (Disarankan):**
-
-1. **License Information**
-   - Tambahkan file `LICENSE` di root project
-   - Update section license sesuai kebutuhan
-
-2. **Repository Badges**
-   - Build status badge
-   - Coverage badge
-   - Version badge
-
-3. **Screenshots/Demo**
-   - Tambahkan screenshot GraphQL Playground
-   - Link ke demo deployment (jika ada)
-
-4. **Team Information**
-   - Nama anggota tim
-   - Contributor list
-
-### 📝 **Cara Generate JWT Secret:**
+Before running the application, generate a secure JWT secret:
 
 ```bash
-# Gunakan salah satu cara ini:
+# Using Node.js
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-# atau
+
+# Or using OpenSSL
 openssl rand -base64 32
 ```
 
+Add the generated secret to your `.env` file as `JWT_SECRET`.
+
 ---
 
-## 📄 License
+## � Team
 
-This project is licensed under the ISC License - see the LICENSE file for details.
+### Development Team
+
+- **[Rico Aldy Kusuma]**
+- **[Muhammad Irfan Irsyad]**
+- **[Zoe Mohamed]**
+
+### Institution
+
+**Program Magang DSTI - Universitas Diponegoro**  
+*Periode: [September] - [Desember] 2025*
 
 ---
 
