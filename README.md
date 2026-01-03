@@ -1,4 +1,4 @@
-# 🏟️ VENUE UNDIP - Sports Facility Booking System
+# ⚽ VENUE UNDIP - Sports Field Booking Platform
 
 <div align="center">
 
@@ -10,7 +10,7 @@
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![MinIO](https://img.shields.io/badge/MinIO-C72E49?style=for-the-badge&logo=minio&logoColor=white)
 
-*A modern, scalable GraphQL API for managing sports stadium bookings and facility reservations*
+*A modern, scalable GraphQL API for sports field booking and reservation management at Universitas Diponegoro*
 
 [Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Documentation](#-api-documentation) • [Architecture](#-architecture)
 
@@ -40,7 +40,7 @@
 
 ## 🌟 Overview
 
-**VENUE UNDIP** is a comprehensive backend system designed for managing sports facility bookings at Universitas Diponegoro. Built with modern technologies and best practices, it provides a robust GraphQL API for handling stadium reservations, facility management, and administrative operations.
+**VENUE UNDIP** is a comprehensive backend system designed for **sports field booking and reservation management** at Universitas Diponegoro. The platform enables students, staff, and external parties to easily book sports fields (basketball courts, football fields, volleyball courts, etc.) with real-time availability checking, automated booking management, and integrated payment tracking.
 
 ### Key Highlights
 
@@ -56,37 +56,53 @@
 
 ## ✨ Features
 
-### Core Functionality
+### Core Booking System
 
-- **🏟️ Stadium Management**
-  - Complete CRUD operations for stadiums
-  - Multi-image support with MinIO storage
-  - Facility associations
+- **📅 Field Booking & Reservation**
+  - Real-time field availability checking
+  - Unique booking code generation (auto-generated)
+  - Multi-field booking in single transaction
+  - Hourly booking slots
+  - Booking date and time management
+  - Automatic subtotal calculation per field
+  - Conflict detection and prevention
+
+- **👥 User Types & Access**
+  - **Academic Bookings** - For university organizations (with official letter upload)
+  - **Public Bookings** - For general public and external parties
+  - Contact information collection (name, email, phone, institution)
+  - Document upload support (Surat/Official Letter)
+
+- **💳 Payment & Status Management**
+  - Payment status tracking (Unpaid/Paid)
+  - Booking status workflow:
+    - `PENDING` - Awaiting admin approval
+    - `APPROVED` - Confirmed by admin
+    - `DONE` - Booking completed
+    - `CANCELLED` - Booking cancelled
+  - Total price calculation across multiple fields
+
+### Sports Venue Management
+
+- **🏟️ Stadium/Venue Information**
+  - Stadium profiles with descriptions
+  - Location mapping (Google Maps integration)
+  - Multi-image galleries per stadium
+  - Facility listings (parking, restrooms, changing rooms, etc.)
   - Status management (Active/Inactive)
-  - Soft delete capability
 
-- **⚽ Field Management**
-  - Field creation and configuration
-  - Pricing per hour
-  - Field-specific image galleries
-  - Availability tracking
-
-- **📅 Booking System**
-  - Real-time availability checking
-  - Unique booking code generation
-  - Academic and public bookings
-  - Document upload support (Surat)
-  - Multiple payment statuses
-  - Booking status workflow (Pending → Approved → Done/Cancelled)
+- **⚽ Sports Field Management**
+  - Field configuration per stadium
+  - Field-specific pricing per hour
+  - Field descriptions and specifications
+  - Image galleries for each field
+  - Field availability status
+  - Support for multiple sports types
 
 - **🎛️ Operating Hours**
-  - Configurable business hours
-  - System-wide schedule management
-
-- **🔧 Facility Management**
-  - Custom facility types
-  - Icon support
-  - Stadium-facility associations
+  - Configurable daily operating hours
+  - System-wide booking time restrictions
+  - Open and close hour management
 
 ### Administrative Features
 
@@ -251,11 +267,12 @@ The GraphQL API will be available at `http://localhost:4000/graphql`
 
 ### Key Relationships
 
-- **Stadion** has many **Fields**
-- **Stadion** has many **Facilities** (through StadionFacility)
-- **Field** has many **Bookings** (through BookingDetail)
-- **Booking** contains multiple **BookingDetails**
-- **Admin** tracks all actions via **AdminLog**
+- **Stadion** (Venue) contains multiple **Fields** (sports courts/fields)
+- **Stadion** has associated **Facilities** (amenities like parking, restrooms)
+- **Booking** is the main reservation entity with customer information
+- **BookingDetail** links bookings to specific **Fields** with date/time slots
+- **Field** availability is calculated from existing **BookingDetails**
+- **Admin** actions are tracked via **AdminLog** for audit trail
 
 ### Status Enums
 
@@ -583,7 +600,7 @@ Add the generated secret to your `.env` file as `JWT_SECRET`.
 ### Institution
 
 **Program Magang DSTI - Universitas Diponegoro**  
-*Periode: [September] - [Desember] 2025*
+*Periode: September - Desember 2025*
 
 ---
 
@@ -600,6 +617,6 @@ Add the generated secret to your `.env` file as `JWT_SECRET`.
 
 **Built with ❤️ by VENUE UNDIP Team**
 
-*Empowering sports facility management at Universitas Diponegoro*
+*Simplifying sports field booking for Universitas Diponegoro community*
 
 </div>
