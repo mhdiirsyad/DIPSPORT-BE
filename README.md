@@ -417,7 +417,7 @@ DIPSPORT-BE/
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                        Client Layer                          │
-│   (Web App / Mobile App / Admin Dashboard)                  │
+│   (Web App / Mobile App / Admin Dashboard)                   │
 └────────────────────────┬─────────────────────────────────────┘
                          │
                          │ GraphQL over HTTP
