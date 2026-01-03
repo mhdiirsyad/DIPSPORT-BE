@@ -533,22 +533,6 @@ DIPSPORT-BE/
 
 ---
 
-## 🚀 Deployment
-
-### Production Checklist
-
-- [ ] Set strong `JWT_SECRET`
-- [ ] Configure production database
-- [ ] Set up MinIO/S3 bucket
-- [ ] Configure CORS origins
-- [ ] Run database migrations
-- [ ] Build the application
-- [ ] Set up process manager (PM2)
-- [ ] Configure reverse proxy (Nginx)
-- [ ] Enable HTTPS
-- [ ] Set up monitoring
-- [ ] Configure backups
-
 ### Docker Deployment (Optional)
 
 ```dockerfile
@@ -604,6 +588,12 @@ Add the generated secret to your `.env` file as `JWT_SECRET`.
 
 ---
 
+## 🔗 Related Repositories
+
+- **Front End**: [DIPSPORT-FE](https://github.com/dipo-devs/DIPSPORT-FE.git)
+
+---
+
 ## 🙏 Acknowledgments
 
 - **Universitas Diponegoro** - For project support
@@ -613,10 +603,18 @@ Add the generated secret to your `.env` file as `JWT_SECRET`.
 
 ---
 
+## 📝 License
+
+This project is developed as part of the internship program at Universitas Diponegoro and is intended for educational purposes.
+
+---
+
 <div align="center">
 
 **Built with ❤️ by VENUE UNDIP Team**
 
 *Simplifying sports field booking for Universitas Diponegoro community*
+
+**[⬆ Back to Top](#-venue-undip---sports-field-booking-platform)**
 
 </div>
