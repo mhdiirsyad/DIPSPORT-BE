@@ -583,7 +583,7 @@ Add the generated secret to your `.env` file as `JWT_SECRET`.
 ### Institution
 
 **Program Magang DSTI - Universitas Diponegoro**  
-*Periode: [September] - [Desember] 2025*
+*Periode: September - Desember 2025*
 
 ---
 
