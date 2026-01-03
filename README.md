@@ -576,9 +576,9 @@ Add the generated secret to your `.env` file as `JWT_SECRET`.
 
 ### Development Team
 
-- **[Rico Aldy Kusuma]**
-- **[Muhammad Irfan Irsyad]**
-- **[Zoe Mohamed]**
+- **Rico Aldy Kusuma**
+- **Muhammad Irfan Irsyad**
+- **Zoe Mohamed**
 
 ### Institution
 
