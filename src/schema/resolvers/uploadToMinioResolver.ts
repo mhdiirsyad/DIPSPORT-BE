@@ -13,14 +13,12 @@ type ResolverContext = {
   } | null;
 };
 
-// Reusable helper for upload resolver
 async function handleImageUpload(
   files: any[],
   folder: string,
   prismaCreateMany: (data: { imageUrl: string; parentId: number }[]) => Promise<any>,
   parentId: number
 ) {
-  // resolve semua upload (karena GraphQLUpload kirim Upload object)
   const resolvedFiles = await Promise.all(files.map((f) => f.promise));
 
   const uploadedImages: string[] = [];
@@ -98,7 +96,6 @@ export const stadionImageResolvers = {
           await minioClient.removeObject(BUCKET, objectName);
         }
       } catch (e) {
-        // ignore MinIO deletion errors, proceed to remove DB record
         const emsg = (e as any)?.message ?? String(e);
         console.warn('Failed to delete MinIO object for image', imageId, emsg);
       }
@@ -145,7 +142,6 @@ export const fieldImageResolvers = {
       const img = await prisma.imageField.findUnique({ where: { id: Number(imageId) } });
       if (!img) throw new Error('Image tidak ditemukan');
 
-      // Try to remove object from MinIO. Derive objectName from stored imageUrl.
       try {
         const prefix = `https://${PUBLIC_URL}/${BUCKET}/`;
         let objectName = img.imageUrl;
@@ -166,7 +162,6 @@ export const fieldImageResolvers = {
           await minioClient.removeObject(BUCKET, objectName);
         }
       } catch (e) {
-        // ignore MinIO deletion errors, proceed to remove DB record
         const emsg = (e as any)?.message ?? String(e);
         console.warn('Failed to delete MinIO object for image', imageId, emsg);
       }

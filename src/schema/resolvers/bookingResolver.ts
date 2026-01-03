@@ -165,12 +165,10 @@ export const bookingResolvers = {
       const bookingCode = `DS-${uuidv4().split("-")[0]?.toUpperCase()}`
       const today = dayjs().startOf("day")
 
-      // Fetch operating hours
       const operatingHour = await prisma.operatingHour.findUnique({
         where: { id: 1 },
       })
 
-      // Set default or use operating hours
       const openHour = operatingHour?.openHour ?? 8
       const closeHour = operatingHour?.closeHour ?? 21
       const minBookingHour = openHour
@@ -184,7 +182,6 @@ export const bookingResolvers = {
             throw new Error("Maksimal booking harus dilakukan minimal H-1")
           }
 
-          // Validate booking hour against operating hours
           if (item.startHour < minBookingHour || item.startHour > maxBookingHour) {
             throw new Error(
               `Jam mulai booking harus antara ${minBookingHour}:00 - ${maxBookingHour}:00 ` +

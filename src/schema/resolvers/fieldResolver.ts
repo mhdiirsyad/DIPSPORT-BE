@@ -86,7 +86,6 @@ export const fieldResolvers = {
           images: images ? { create: images.map((img) => ({ imageUrl: img.imageUrl })) } : undefined,
         }
         
-        // Only update pricePerHour if explicitly provided
         if (pricePerHour !== undefined) {
           updateData.pricePerHour = pricePerHour ?? 0
         }
