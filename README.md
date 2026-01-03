@@ -39,7 +39,7 @@
 
 ## 🌟 Overview
 
-**DIPSPORT** is a comprehensive backend system designed for managing sports facility bookings at Universitas Diponegoro. Built with modern technologies and best practices, it provides a robust GraphQL API for handling stadium reservations, facility management, and administrative operations.
+**VENUE UNDIP** is a comprehensive backend system designed for managing sports facility bookings at Universitas Diponegoro. Built with modern technologies and best practices, it provides a robust GraphQL API for handling stadium reservations, facility management, and administrative operations.
 
 ### Key Highlights
 
@@ -113,15 +113,15 @@
 
 ### Core Technologies
 
-| Technology | Purpose |
-|-----------|---------|
-| **TypeScript** | Type-safe programming language |
-| **Node.js** | JavaScript runtime environment |
-| **Express** | Web application framework |
-| **Apollo Server** | GraphQL server implementation |
-| **Prisma** | Modern database ORM |
-| **MySQL** | Relational database |
-| **MinIO** | S3-compatible object storage |
+| Technology           | Version    | Purpose                              |
+|---------------------|------------|--------------------------------------|
+| **TypeScript**      | Latest     | Type-safe programming language       |
+| **Node.js**         | >= 18.x    | JavaScript runtime environment       |
+| **Express**         | ^5.1.0     | Web application framework            |
+| **Apollo Server**   | ^5.0.0     | GraphQL server implementation        |
+| **Prisma**          | ^6.18.0    | Modern database ORM                  |
+| **MySQL**           | >= 8.0     | Relational database                  |
+| **MinIO**           | ^8.0.6     | S3-compatible object storage         |
 
 ### Key Libraries
 
@@ -152,6 +152,7 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
+# TODO: Ganti <repository-url> dengan URL repository GitHub Anda
 git clone <repository-url>
 cd DIPSPORT-BE
 ```
@@ -214,19 +215,19 @@ The GraphQL API will be available at `http://localhost:4000/graphql`
 
 ## 🔧 Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `PORT` | Server port | No | 4000 |
-| `NODE_ENV` | Environment mode | No | development |
-| `MYSQL_URL` | Database connection string | Yes | - |
-| `JWT_SECRET` | Secret key for JWT signing | Yes | - |
-| `MINIO_ENDPOINT` | MinIO server endpoint | Yes | - |
-| `MINIO_PORT` | MinIO server port | Yes | 9000 |
-| `MINIO_USE_SSL` | Enable SSL for MinIO | No | false |
-| `MINIO_ACCESS_KEY` | MinIO access key | Yes | - |
-| `MINIO_SECRET_KEY` | MinIO secret key | Yes | - |
-| `MINIO_BUCKET_NAME` | MinIO bucket name | Yes | - |
-| `CORS_ORIGINS` | Allowed CORS origins (comma-separated) | No | http://localhost:3000 |
+| Variable              | Description                                  | Required | Default                |
+|-----------------------|----------------------------------------------|----------|------------------------|
+| `PORT`                | Server port                                  | No       | `4000`                 |
+| `NODE_ENV`            | Environment mode                             | No       | `development`          |
+| `MYSQL_URL`           | Database connection string                   | **Yes**  | -                      |
+| `JWT_SECRET`          | Secret key for JWT signing                   | **Yes**  | -                      |
+| `MINIO_ENDPOINT`      | MinIO server endpoint                        | **Yes**  | -                      |
+| `MINIO_PORT`          | MinIO server port                            | **Yes**  | `9000`                 |
+| `MINIO_USE_SSL`       | Enable SSL for MinIO                         | No       | `false`                |
+| `MINIO_ACCESS_KEY`    | MinIO access key                             | **Yes**  | -                      |
+| `MINIO_SECRET_KEY`    | MinIO secret key                             | **Yes**  | -                      |
+| `MINIO_BUCKET_NAME`   | MinIO bucket name                            | **Yes**  | -                      |
+| `CORS_ORIGINS`        | Allowed CORS origins (comma-separated)       | No       | `http://localhost:3000`|
 
 ---
 
@@ -474,16 +475,16 @@ DIPSPORT-BE/
 
 ### Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server with tsx |
-| `npm run dev:nodemon` | Start dev server with auto-reload |
-| `npm run build` | Compile TypeScript to JavaScript |
-| `npm start` | Run production server |
-| `npm run prisma:generate` | Generate Prisma client |
-| `npm run prisma:migrate:dev` | Create and apply migrations |
-| `npm run prisma:migrate:deploy` | Apply migrations (production) |
-| `npm run prisma:seed` | Seed database with initial data |
+| Command                         | Description                                      |
+|---------------------------------|--------------------------------------------------|
+| `npm run dev`                   | Start development server with tsx                |
+| `npm run dev:nodemon`           | Start dev server with auto-reload                |
+| `npm run build`                 | Compile TypeScript to JavaScript                 |
+| `npm start`                     | Run production server                            |
+| `npm run prisma:generate`       | Generate Prisma client                           |
+| `npm run prisma:migrate:dev`    | Create and apply migrations (development)        |
+| `npm run prisma:migrate:deploy` | Apply migrations (production)                    |
+| `npm run prisma:seed`           | Seed database with initial data                  |
 
 ### Development Workflow
 
@@ -590,13 +591,57 @@ We welcome contributions! Please follow these guidelines:
 
 ---
 
-## 📞 Support
+## ⚠️ Checklist: Yang Perlu Anda Isi Sendiri
 
-For support and questions:
+Sebelum mempublikasikan project ini, pastikan Anda mengisi bagian-bagian berikut:
 
-- 📧 Email: [your-email@example.com]
-- 🐛 Issues: [GitHub Issues](https://github.com/your-repo/issues)
-- 📖 Documentation: [Wiki](https://github.com/your-repo/wiki)
+### 🔴 **Wajib Diisi:**
+
+1. **Repository URL** (Baris ~174)
+   ```bash
+   git clone <repository-url>  # ← Ganti dengan URL GitHub Anda
+   ```
+
+2. **Environment Variables** (File `.env`)
+   - `MYSQL_URL` - Connection string database MySQL Anda
+   - `JWT_SECRET` - Generate secret key yang kuat (misal: gunakan `openssl rand -base64 32`)
+   - `MINIO_ENDPOINT` - Endpoint server MinIO Anda
+   - `MINIO_ACCESS_KEY` - Access key MinIO
+   - `MINIO_SECRET_KEY` - Secret key MinIO
+   - `MINIO_BUCKET_NAME` - Nama bucket yang akan digunakan
+
+3. **Contact Information** (Section Support)
+   - Email support
+   - Link GitHub Issues
+   - Link dokumentasi/wiki (jika ada)
+
+### 🟡 **Opsional (Disarankan):**
+
+1. **License Information**
+   - Tambahkan file `LICENSE` di root project
+   - Update section license sesuai kebutuhan
+
+2. **Repository Badges**
+   - Build status badge
+   - Coverage badge
+   - Version badge
+
+3. **Screenshots/Demo**
+   - Tambahkan screenshot GraphQL Playground
+   - Link ke demo deployment (jika ada)
+
+4. **Team Information**
+   - Nama anggota tim
+   - Contributor list
+
+### 📝 **Cara Generate JWT Secret:**
+
+```bash
+# Gunakan salah satu cara ini:
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+# atau
+openssl rand -base64 32
+```
 
 ---
 
@@ -617,7 +662,7 @@ This project is licensed under the ISC License - see the LICENSE file for detail
 
 <div align="center">
 
-**Built with ❤️ by DIPSPORT Team**
+**Built with ❤️ by VENUE UNDIP Team**
 
 *Empowering sports facility management at Universitas Diponegoro*
 
