@@ -75,7 +75,6 @@ export const stadionImageResolvers = {
       const img = await prisma.imageStadion.findUnique({ where: { id: Number(imageId) } });
       if (!img) throw new Error('Image tidak ditemukan');
 
-      // Try to remove object from MinIO. Derive objectName from stored imageUrl.
       try {
         const prefix = `https://${PUBLIC_URL}/${BUCKET}/`;
         let objectName = img.imageUrl;
@@ -148,7 +147,6 @@ export const fieldImageResolvers = {
         if (objectName.startsWith(prefix)) {
           objectName = objectName.slice(prefix.length);
         } else {
-          // fallback: try to extract after bucket name
           const bucketMarker = `/${BUCKET}/`;
           const idx = img.imageUrl.indexOf(bucketMarker);
           if (idx !== -1) {

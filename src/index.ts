@@ -9,6 +9,8 @@ import { print, type DocumentNode } from "graphql"
 import typeDefs from "./schema/typeDefs.js"
 import resolvers from "./schema/resolvers/index.js"
 import { buildContext } from "./lib/context.js"
+import { initializeEmailService } from "./lib/email/emailService.js"
+import { initializeBookingReminderScheduler } from "./schedulers/bookingReminderScheduler.js"
 
 const app = express()
 const server = new ApolloServer({
@@ -89,6 +91,10 @@ app.use(
 )
 
 const port = process.env.PORT || 4000
+
+initializeEmailService()
+
+initializeBookingReminderScheduler()
 
 app.listen(port, () => {
   console.log(`Server ready at http://localhost:${port}/graphql`)

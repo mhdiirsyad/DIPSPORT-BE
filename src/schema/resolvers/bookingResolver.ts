@@ -6,6 +6,9 @@ import { createBookingSchema, updateBookingSchema, updatePaymenStatusSchema, } f
 import Upload from "graphql-upload/Upload.mjs"
 import { uploadToMinio } from "../../lib/uploadToMinio.js"
 import { minioClient, BUCKET } from "../../lib/minioClient.js"
+import { sendEmail } from "../../lib/email/emailService.js"
+import { generateBookingConfirmationEmail } from "../../lib/email/templates/bookingConfirmation.js"
+import { generateBookingCancellationEmail } from "../../lib/email/templates/bookingCancellation.js"
 
 const DEFAULT_ACADEMIC_SURAT_URL = process.env.DEFAULT_ACADEMIC_SURAT_URL ?? "https://example.com/uploads/placeholder-surat.pdf"
 interface BookingArgs {
@@ -70,7 +73,6 @@ export const bookingResolvers = {
       }
 
       if (args.date) {
-        // MODE HARIAN (Specific Date)
         const selectedDate = new Date(args.date)
         const dateFilter = {
             bookingDate: {
@@ -79,7 +81,6 @@ export const bookingResolvers = {
             }
         }
 
-        // Merge logic
         if (filters.details) {
             filters.details.some = { ...filters.details.some, ...dateFilter }
         } else {
@@ -87,15 +88,13 @@ export const bookingResolvers = {
         }
 
       } else if (args.startDate && args.endDate) {
-        // MODE RENTANG (Range Date) - INI LOGIKANYA
         const rangeFilter = {
             bookingDate: {
-              gte: new Date(args.startDate), // Tanggal Awal
-              lte: new Date(args.endDate)    // Tanggal Akhir
+              gte: new Date(args.startDate),
+              lte: new Date(args.endDate)
             }
         }
 
-        // Merge logic
         if (filters.details) {
             filters.details.some = { ...filters.details.some, ...rangeFilter }
         } else {
@@ -230,9 +229,38 @@ export const bookingResolvers = {
             },
           },
           include: {
-            details: true,
+            details: {
+              include: {
+                Field: {
+                  include: {
+                    Stadion: true
+                  }
+                }
+              }
+            },
           },
         })
+
+        try {
+          const emailHtml = generateBookingConfirmationEmail({
+            bookingCode: booking.bookingCode,
+            name: booking.name,
+            email: booking.email,
+            contact: booking.contact,
+            institution: booking.institution || undefined,
+            isAcademic: booking.isAcademic,
+            totalPrice: booking.totalPrice,
+            details: booking.details,
+          })
+
+          await sendEmail({
+            to: booking.email,
+            subject: `Konfirmasi Booking - ${booking.bookingCode} | VENUE UNDIP`,
+            html: emailHtml,
+          })
+        } catch (emailError) {
+          console.error('Failed to send confirmation email:', emailError)
+        }
 
         return booking
       } catch (err) {
@@ -252,14 +280,60 @@ export const bookingResolvers = {
       const validated = await updateBookingSchema.validate(args, { abortEarly: false })
       const { bookingCode, status } = validated
       if (status === 'CANCELLED') {
-        // Find booking first
-        const booking = await prisma.booking.findUnique({ where: { bookingCode }, select: { id: true } })
-        if (!booking) throw new Error('Booking not found')
+        const bookingBeforeCancel = await prisma.booking.findUnique({ 
+          where: { bookingCode },
+          include: {
+            details: {
+              include: {
+                Field: {
+                  include: {
+                    Stadion: true
+                  }
+                }
+              }
+            }
+          }
+        })
+        
+        if (!bookingBeforeCancel) throw new Error('Booking not found')
 
         const [ , updated ] = await prisma.$transaction([
-          prisma.bookingDetail.deleteMany({ where: { bookingId: booking.id } }),
-          prisma.booking.update({ where: { bookingCode }, data: { status }, include: { details: true } }),
+          prisma.bookingDetail.deleteMany({ where: { bookingId: bookingBeforeCancel.id } }),
+          prisma.booking.update({ 
+            where: { bookingCode }, 
+            data: { status }, 
+            include: { 
+              details: {
+                include: {
+                  Field: {
+                    include: {
+                      Stadion: true
+                    }
+                  }
+                }
+              } 
+            } 
+          }),
         ])
+
+        try {
+          const emailHtml = generateBookingCancellationEmail({
+            bookingCode: bookingBeforeCancel.bookingCode,
+            name: bookingBeforeCancel.name,
+            email: bookingBeforeCancel.email,
+            institution: bookingBeforeCancel.institution || undefined,
+            isAcademic: bookingBeforeCancel.isAcademic,
+            details: bookingBeforeCancel.details,
+          })
+
+          await sendEmail({
+            to: bookingBeforeCancel.email,
+            subject: `Pembatalan Booking - ${bookingBeforeCancel.bookingCode} | VENUE UNDIP`,
+            html: emailHtml,
+          })
+        } catch (emailError) {
+          console.error('Failed to send cancellation email:', emailError)
+        }
 
         return updated
       }
