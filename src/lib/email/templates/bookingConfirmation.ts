@@ -53,11 +53,16 @@ export const generateBookingConfirmationEmail = (booking: BookingConfirmationDat
     
     return `
       <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">📅 ${formattedDate}</td>
+        <td colspan="2" style="padding: 12px 16px; background-color: #eff6ff; border-radius: 8px;">
+          <div style="margin-bottom: 8px;">
+            <span style="color: #3b82f6; font-weight: 600;">📅 ${formattedDate}</span>
+          </div>
+          <div>
+            <span style="color: #1f2937; font-weight: 500;">⏰ ${timeSlots}</span>
+          </div>
+        </td>
       </tr>
-      <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">⏰ ${timeSlots}</td>
-      </tr>
+      <tr><td colspan="2" style="padding: 6px;"></td></tr>
     `
   }).join('')
 
@@ -90,48 +95,42 @@ export const generateBookingConfirmationEmail = (booking: BookingConfirmationDat
                                 Booking Anda telah berhasil dikonfirmasi! Berikut adalah detail booking Anda:
                             </p>
                             
+                            <!-- Booking Code Highlight -->
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Kode Booking Anda</p>
+                                <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); display: inline-block; padding: 16px 32px; border-radius: 12px; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
+                                    <span style="color: #ffffff; font-size: 32px; font-weight: bold; letter-spacing: 2px;">${booking.bookingCode}</span>
+                                </div>
+                            </div>
+
                             <!-- Booking Details -->
-                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px; background-color: #f9fafb; border-radius: 8px; overflow: hidden;">
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px; background-color: #f9fafb; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                                 <tr>
-                                    <td style="padding: 20px;">
+                                    <td style="padding: 24px;">
+                                        <h3 style="margin: 0 0 20px 0; color: #1f2937; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">📋 Detail Booking</h3>
                                         <table role="presentation" style="width: 100%; border-collapse: collapse;">
                                             <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-weight: 600;">Kode Booking</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
-                                                    <span style="background-color: #3b82f6; color: #ffffff; padding: 4px 12px; border-radius: 4px; font-weight: bold; font-size: 18px;">${booking.bookingCode}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-weight: 600;">Nama Pemesan</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.name}</td>
+                                                <td style="padding: 12px 0; color: #6b7280; font-weight: 600; width: 40%; vertical-align: top;">👤 Nama Pemesan</td>
+                                                <td style="padding: 12px 0; color: #1f2937; font-weight: 500;">${booking.name}</td>
                                             </tr>
                                             ${booking.isAcademic && booking.institution ? `
                                             <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-weight: 600;">Institusi</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.institution}</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #6b7280; font-weight: 600; vertical-align: top;">🏫 Institusi</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #1f2937; font-weight: 500;">${booking.institution}</td>
                                             </tr>
                                             ` : ''}
                                             <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-weight: 600;">Stadion</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #6b7280; font-weight: 600; vertical-align: top;">🏟️ Stadion</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #1f2937; font-weight: 500;">${stadionName}</td>
                                             </tr>
                                             <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${stadionName}</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #6b7280; font-weight: 600; vertical-align: top;">⚽ Lapangan</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #1f2937; font-weight: 500;">${fieldName}</td>
                                             </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-weight: 600;">Lapangan</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${fieldName}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-weight: 600;">Jadwal Booking</td>
-                                            </tr>
+                                        </table>
+                                        
+                                        <h4 style="margin: 24px 0 16px 0; color: #1f2937; font-size: 16px; font-weight: 600;">📅 Jadwal Booking</h4>
+                                        <table role="presentation" style="width: 100%; border-collapse: collapse;">
                                             ${bookingDetailsHtml}
                                         </table>
                                     </td>
@@ -139,22 +138,24 @@ export const generateBookingConfirmationEmail = (booking: BookingConfirmationDat
                             </table>
                             
                             <!-- Important Notice -->
-                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin-bottom: 30px; border-radius: 4px;">
-                                <p style="margin: 0; color: #92400e; font-weight: 600; font-size: 16px;">⚠️ Penting!</p>
-                                <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #92400e;">
-                                    <li>Harap datang <strong>15 menit sebelum</strong> waktu booking</li>
-                                    <li>Tunjukkan <strong>kode booking</strong> ini kepada petugas</li>
-                                    <li>Bawa kartu identitas yang valid</li>
+                            <div style="background: linear-gradient(to right, #fef3c7, #fde68a); border-left: 5px solid #f59e0b; padding: 20px 24px; margin-bottom: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);">
+                                <p style="margin: 0 0 12px 0; color: #92400e; font-weight: 700; font-size: 17px; display: flex; align-items: center;">
+                                    <span style="font-size: 24px; margin-right: 8px;">⚠️</span> Hal Penting yang Perlu Diperhatikan
+                                </p>
+                                <ul style="margin: 0; padding-left: 24px; color: #78350f; line-height: 1.8;">
+                                    <li style="margin-bottom: 8px;">Harap datang <strong>15 menit sebelum</strong> waktu booking</li>
+                                    <li style="margin-bottom: 8px;">Tunjukkan <strong>kode booking</strong> ini kepada petugas</li>
+                                    <li style="margin-bottom: 8px;">Bawa kartu identitas yang valid</li>
                                     ${!booking.isAcademic ? '<li>Lakukan pembayaran di tempat sebelum mulai bermain</li>' : ''}
                                 </ul>
                             </div>
                             
                             <!-- Location Button -->
-                            <table role="presentation" style="width: 100%; margin-bottom: 30px;">
+                            <table role="presentation" style="width: 100%; margin-bottom: 24px;">
                                 <tr>
                                     <td style="text-align: center;">
-                                        <a href="${mapUrl}" style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
-                                            📍 Lihat Lokasi di Maps
+                                        <a href="${mapUrl}" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 17px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: transform 0.2s;">
+                                            <span style="font-size: 20px; margin-right: 8px;">📍</span> Lihat Lokasi di Maps
                                         </a>
                                     </td>
                                 </tr>

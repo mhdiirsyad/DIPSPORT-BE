@@ -49,11 +49,16 @@ export const generateBookingCancellationEmail = (booking: BookingCancellationDat
     
     return `
       <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">📅 ${formattedDate}</td>
+        <td colspan="2" style="padding: 12px 16px; background-color: #fee2e2; border-radius: 8px;">
+          <div style="margin-bottom: 8px;">
+            <span style="color: #dc2626; font-weight: 600;">📅 ${formattedDate}</span>
+          </div>
+          <div>
+            <span style="color: #1f2937; font-weight: 500;">⏰ ${timeSlots}</span>
+          </div>
+        </td>
       </tr>
-      <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">⏰ ${timeSlots}</td>
-      </tr>
+      <tr><td colspan="2" style="padding: 6px;"></td></tr>
     `
   }).join('')
 
@@ -86,49 +91,45 @@ export const generateBookingCancellationEmail = (booking: BookingCancellationDat
                                 Kami informasikan bahwa booking Anda telah <strong style="color: #dc2626;">dibatalkan</strong>. Berikut adalah detail booking yang dibatalkan:
                             </p>
                             
+                            <!-- Booking Code Highlight -->
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Kode Booking</p>
+                                <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); display: inline-block; padding: 16px 32px; border-radius: 12px; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);">
+                                    <span style="color: #ffffff; font-size: 32px; font-weight: bold; letter-spacing: 2px;">${booking.bookingCode}</span>
+                                </div>
+                                <div style="margin-top: 12px;">
+                                    <span style="background-color: #fca5a5; color: #7f1d1d; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">❌ DIBATALKAN</span>
+                                </div>
+                            </div>
+
                             <!-- Booking Details -->
-                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px; background-color: #fef2f2; border-radius: 8px; overflow: hidden; border: 2px solid #fecaca;">
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px; background-color: #fef2f2; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1); border: 2px solid #fecaca;">
                                 <tr>
-                                    <td style="padding: 20px;">
+                                    <td style="padding: 24px;">
+                                        <h3 style="margin: 0 0 20px 0; color: #7f1d1d; font-size: 18px; font-weight: 600; border-bottom: 2px solid #fecaca; padding-bottom: 12px;">📋 Detail Booking yang Dibatalkan</h3>
                                         <table role="presentation" style="width: 100%; border-collapse: collapse;">
                                             <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca; color: #6b7280; font-weight: 600;">Kode Booking</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca;">
-                                                    <span style="background-color: #dc2626; color: #ffffff; padding: 4px 12px; border-radius: 4px; font-weight: bold; font-size: 18px;">${booking.bookingCode}</span>
-                                                    <span style="background-color: #fca5a5; color: #7f1d1d; padding: 4px 12px; border-radius: 4px; font-weight: bold; margin-left: 8px;">DIBATALKAN</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca; color: #6b7280; font-weight: 600;">Nama Pemesan</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca;">${booking.name}</td>
+                                                <td style="padding: 12px 0; color: #6b7280; font-weight: 600; width: 40%; vertical-align: top;">👤 Nama Pemesan</td>
+                                                <td style="padding: 12px 0; color: #1f2937; font-weight: 500;">${booking.name}</td>
                                             </tr>
                                             ${booking.isAcademic && booking.institution ? `
                                             <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca; color: #6b7280; font-weight: 600;">Institusi</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca;">${booking.institution}</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #fecaca; color: #6b7280; font-weight: 600; vertical-align: top;">🏫 Institusi</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #fecaca; color: #1f2937; font-weight: 500;">${booking.institution}</td>
                                             </tr>
                                             ` : ''}
                                             <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca; color: #6b7280; font-weight: 600;">Stadion</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #fecaca; color: #6b7280; font-weight: 600; vertical-align: top;">🏟️ Stadion</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #fecaca; color: #1f2937; font-weight: 500;">${stadionName}</td>
                                             </tr>
                                             <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca;">${stadionName}</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #fecaca; color: #6b7280; font-weight: 600; vertical-align: top;">⚽ Lapangan</td>
+                                                <td style="padding: 12px 0; border-top: 1px solid #fecaca; color: #1f2937; font-weight: 500;">${fieldName}</td>
                                             </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca; color: #6b7280; font-weight: 600;">Lapangan</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca;">${fieldName}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px; border-bottom: 1px solid #fecaca; color: #6b7280; font-weight: 600;">Jadwal yang Dibatalkan</td>
-                                            </tr>
+                                        </table>
+                                        
+                                        <h4 style="margin: 24px 0 16px 0; color: #7f1d1d; font-size: 16px; font-weight: 600;">📅 Jadwal yang Dibatalkan</h4>
+                                        <table role="presentation" style="width: 100%; border-collapse: collapse;">
                                             ${bookingDetailsHtml}
                                         </table>
                                     </td>
@@ -136,11 +137,13 @@ export const generateBookingCancellationEmail = (booking: BookingCancellationDat
                             </table>
                             
                             <!-- Important Notice -->
-                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin-bottom: 30px; border-radius: 4px;">
-                                <p style="margin: 0; color: #92400e; font-weight: 600; font-size: 16px;">📋 Informasi</p>
-                                <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #92400e;">
-                                    <li>Booking dengan kode <strong>${booking.bookingCode}</strong> telah dibatalkan</li>
-                                    <li>Jika Anda merasa ini adalah kesalahan, silakan hubungi kami segera</li>
+                            <div style="background: linear-gradient(to right, #fef3c7, #fde68a); border-left: 5px solid #f59e0b; padding: 20px 24px; margin-bottom: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);">
+                                <p style="margin: 0 0 12px 0; color: #92400e; font-weight: 700; font-size: 17px; display: flex; align-items: center;">
+                                    <span style="font-size: 24px; margin-right: 8px;">📋</span> Informasi Penting
+                                </p>
+                                <ul style="margin: 0; padding-left: 24px; color: #78350f; line-height: 1.8;">
+                                    <li style="margin-bottom: 8px;">Booking dengan kode <strong>${booking.bookingCode}</strong> telah dibatalkan</li>
+                                    <li style="margin-bottom: 8px;">Jika Anda merasa ini adalah kesalahan, silakan hubungi kami segera</li>
                                     <li>Untuk booking baru, silakan datang kembali ke venue kami</li>
                                 </ul>
                             </div>
