@@ -53,16 +53,11 @@ export const generateBookingConfirmationEmail = (booking: BookingConfirmationDat
     
     return `
       <tr>
-        <td colspan="2" style="padding: 12px 16px; background-color: #eff6ff; border-radius: 8px;">
-          <div style="margin-bottom: 8px;">
-            <span style="color: #3b82f6; font-weight: 600;">📅 ${formattedDate}</span>
-          </div>
-          <div>
-            <span style="color: #1f2937; font-weight: 500;">⏰ ${timeSlots}</span>
-          </div>
+        <td style="padding: 8px 0; color: #374151; font-size: 15px; line-height: 1.6;">
+          <strong style="color: #1f2937;">${formattedDate}</strong><br>
+          <span style="color: #6b7280;">${timeSlots}</span>
         </td>
       </tr>
-      <tr><td colspan="2" style="padding: 6px;"></td></tr>
     `
   }).join('')
 
@@ -74,111 +69,128 @@ export const generateBookingConfirmationEmail = (booking: BookingConfirmationDat
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Konfirmasi Booking - VENUE UNDIP</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
-    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc; line-height: 1.6;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8fafc;">
         <tr>
-            <td style="padding: 20px 0; text-align: center;">
-                <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <td style="padding: 40px 20px;">
+                <table role="presentation" style="max-width: 600px; width: 100%; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 40px 20px; text-align: center;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">✅ Booking Berhasil!</h1>
-                            <p style="margin: 0 0 10px 0; color: #ffffff; font-size: 16px;">Terima kasih telah melakukan booking di VENUE UNDIP</p>
+                        <td style="background-color: #1e40af; padding: 32px 32px 28px 32px; text-align: center;">
+                            <h1 style="margin: 0 0 8px 0; color: #ffffff; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">Booking Berhasil Dikonfirmasi</h1>
+                            <p style="margin: 0; color: #dbeafe; font-size: 14px; font-weight: 400;">VENUE UNDIP - Universitas Diponegoro</p>
                         </td>
                     </tr>
                     
                     <!-- Content -->
                     <tr>
-                        <td style="padding: 40px 30px;">
-                            <p style="margin: 0 0 20px 0; font-size: 16px; color: #374151;">Halo <strong>${booking.name}</strong>,</p>
-                            <p style="margin: 0 0 30px 0; font-size: 16px; color: #374151; line-height: 1.6;">
-                                Booking Anda telah berhasil dikonfirmasi! Berikut adalah detail booking Anda:
+                        <td style="padding: 32px;">
+                            
+                            <p style="margin: 0 0 24px 0; font-size: 15px; color: #374151;">
+                                Halo <strong style="color: #1f2937;">${booking.name}</strong>,
                             </p>
                             
-                            <!-- Booking Code Highlight -->
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Kode Booking Anda</p>
-                                <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); display: inline-block; padding: 16px 32px; border-radius: 12px; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
-                                    <span style="color: #ffffff; font-size: 32px; font-weight: bold; letter-spacing: 2px;">${booking.bookingCode}</span>
-                                </div>
-                            </div>
+                            <p style="margin: 0 0 32px 0; font-size: 15px; color: #6b7280; line-height: 1.6;">
+                                Terima kasih telah melakukan booking. Booking Anda telah berhasil dikonfirmasi dengan detail sebagai berikut:
+                            </p>
+                            
+                            <!-- Booking Code -->
+                            <table role="presentation" style="width: 100%; margin-bottom: 32px;">
+                                <tr>
+                                    <td style="background-color: #f8fafc; border: 2px solid #e5e7eb; border-radius: 8px; padding: 24px; text-align: center;">
+                                        <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Kode Booking</p>
+                                        <p style="margin: 0; color: #1e40af; font-size: 28px; font-weight: 700; letter-spacing: 2px; font-family: 'Courier New', monospace;">${booking.bookingCode}</p>
+                                    </td>
+                                </tr>
+                            </table>
 
                             <!-- Booking Details -->
-                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px; background-color: #f9fafb; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <table role="presentation" style="width: 100%; margin-bottom: 28px;">
                                 <tr>
-                                    <td style="padding: 24px;">
-                                        <h3 style="margin: 0 0 20px 0; color: #1f2937; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">📋 Detail Booking</h3>
-                                        <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                            <tr>
-                                                <td style="padding: 12px 0; color: #6b7280; font-weight: 600; width: 40%; vertical-align: top;">👤 Nama Pemesan</td>
-                                                <td style="padding: 12px 0; color: #1f2937; font-weight: 500;">${booking.name}</td>
-                                            </tr>
-                                            ${booking.isAcademic && booking.institution ? `
-                                            <tr>
-                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #6b7280; font-weight: 600; vertical-align: top;">🏫 Institusi</td>
-                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #1f2937; font-weight: 500;">${booking.institution}</td>
-                                            </tr>
-                                            ` : ''}
-                                            <tr>
-                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #6b7280; font-weight: 600; vertical-align: top;">🏟️ Stadion</td>
-                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #1f2937; font-weight: 500;">${stadionName}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #6b7280; font-weight: 600; vertical-align: top;">⚽ Lapangan</td>
-                                                <td style="padding: 12px 0; border-top: 1px solid #e5e7eb; color: #1f2937; font-weight: 500;">${fieldName}</td>
-                                            </tr>
-                                        </table>
-                                        
-                                        <h4 style="margin: 24px 0 16px 0; color: #1f2937; font-size: 16px; font-weight: 600;">📅 Jadwal Booking</h4>
-                                        <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                            ${bookingDetailsHtml}
-                                        </table>
+                                    <td style="padding-bottom: 16px; border-bottom: 2px solid #e5e7eb;">
+                                        <h3 style="margin: 0; color: #1f2937; font-size: 16px; font-weight: 600;">Detail Booking</h3>
                                     </td>
                                 </tr>
                             </table>
                             
-                            <!-- Important Notice -->
-                            <div style="background: linear-gradient(to right, #fef3c7, #fde68a); border-left: 5px solid #f59e0b; padding: 20px 24px; margin-bottom: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);">
-                                <p style="margin: 0 0 12px 0; color: #92400e; font-weight: 700; font-size: 17px; display: flex; align-items: center;">
-                                    <span style="font-size: 24px; margin-right: 8px;">⚠️</span> Hal Penting yang Perlu Diperhatikan
-                                </p>
-                                <ul style="margin: 0; padding-left: 24px; color: #78350f; line-height: 1.8;">
-                                    <li style="margin-bottom: 8px;">Harap datang <strong>15 menit sebelum</strong> waktu booking</li>
-                                    <li style="margin-bottom: 8px;">Tunjukkan <strong>kode booking</strong> ini kepada petugas</li>
-                                    <li style="margin-bottom: 8px;">Bawa kartu identitas yang valid</li>
-                                    ${!booking.isAcademic ? '<li>Lakukan pembayaran di tempat sebelum mulai bermain</li>' : ''}
-                                </ul>
-                            </div>
+                            <table role="presentation" style="width: 100%; margin-bottom: 28px;">
+                                <tr>
+                                    <td style="padding: 12px 0; color: #6b7280; font-size: 14px; width: 35%; vertical-align: top;">Nama Pemesan</td>
+                                    <td style="padding: 12px 0; color: #1f2937; font-size: 14px; font-weight: 500;">${booking.name}</td>
+                                </tr>
+                                ${booking.isAcademic && booking.institution ? `
+                                <tr>
+                                    <td style="padding: 12px 0; border-top: 1px solid #f3f4f6; color: #6b7280; font-size: 14px; vertical-align: top;">Institusi</td>
+                                    <td style="padding: 12px 0; border-top: 1px solid #f3f4f6; color: #1f2937; font-size: 14px; font-weight: 500;">${booking.institution}</td>
+                                </tr>
+                                ` : ''}
+                                <tr>
+                                    <td style="padding: 12px 0; border-top: 1px solid #f3f4f6; color: #6b7280; font-size: 14px; vertical-align: top;">Stadion</td>
+                                    <td style="padding: 12px 0; border-top: 1px solid #f3f4f6; color: #1f2937; font-size: 14px; font-weight: 500;">${stadionName}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; border-top: 1px solid #f3f4f6; color: #6b7280; font-size: 14px; vertical-align: top;">Lapangan</td>
+                                    <td style="padding: 12px 0; border-top: 1px solid #f3f4f6; color: #1f2937; font-size: 14px; font-weight: 500;">${fieldName}</td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Schedule -->
+                            <table role="presentation" style="width: 100%; margin-bottom: 28px;">
+                                <tr>
+                                    <td style="padding-bottom: 12px;">
+                                        <h4 style="margin: 0; color: #1f2937; font-size: 15px; font-weight: 600;">Jadwal Booking</h4>
+                                    </td>
+                                </tr>
+                                ${bookingDetailsHtml}
+                            </table>
+                            
+                            <!-- Important Info -->
+                            <table role="presentation" style="width: 100%; margin-bottom: 28px;">
+                                <tr>
+                                    <td style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 4px;">
+                                        <p style="margin: 0 0 12px 0; color: #78350f; font-size: 14px; font-weight: 600;">Hal Penting</p>
+                                        <ul style="margin: 0; padding-left: 20px; color: #92400e; font-size: 14px; line-height: 1.7;">
+                                            <li style="margin-bottom: 6px;">Harap datang 15 menit sebelum waktu booking.</li>
+                                            <li style="margin-bottom: 6px;">Tunjukkan kode booking kepada petugas.</li>
+                                            <li style="margin-bottom: 6px;">Bawa kartu identitas yang valid.</li>
+                                            ${!booking.isAcademic ? '<li>Lakukan pembayaran di tempat sebelum mulai</li>' : ''}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
                             
                             <!-- Location Button -->
-                            <table role="presentation" style="width: 100%; margin-bottom: 24px;">
+                            <table role="presentation" style="width: 100%; margin-bottom: 28px;">
                                 <tr>
                                     <td style="text-align: center;">
-                                        <a href="${mapUrl}" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 17px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: transform 0.2s;">
-                                            <span style="font-size: 20px; margin-right: 8px;">📍</span> Lihat Lokasi di Maps
-                                        </a>
+                                        <a href="${mapUrl}" style="display: inline-block; background-color: #1e40af; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px;">Lihat Lokasi</a>
                                     </td>
                                 </tr>
                             </table>
                             
-                            <!-- Contact Info -->
-                            <div style="background-color: #eff6ff; padding: 20px; border-radius: 8px; text-align: center;">
-                                <p style="margin: 0 0 10px 0; color: #1e40af; font-weight: 600;">Butuh Bantuan?</p>
-                                <p style="margin: 0; color: #1e3a8a;">
-                                    Hubungi kami di:<br>
-                                    📞 <strong>+62 851-6566-0339</strong><br>
-                                    📧 <strong>helpdesk@live.undip.ac.id</strong>
-                                </p>
-                            </div>
+                            <!-- Contact -->
+                            <table role="presentation" style="width: 100%;">
+                                <tr>
+                                    <td style="background-color: #f8fafc; padding: 20px; border-radius: 6px; text-align: center;">
+                                        <p style="margin: 0 0 8px 0; color: #1f2937; font-size: 14px; font-weight: 600;">Butuh Bantuan?</p>
+                                        <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                                            +62 851-6566-0339<br>
+                                            helpdesk@live.undip.ac.id
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
                         </td>
                     </tr>
                     
                     <!-- Footer -->
                     <tr>
-                        <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; color: #6b7280; font-size: 14px;">
-                                Email ini dikirim otomatis oleh sistem VENUE UNDIP<br>
-                                © ${new Date().getFullYear()} VENUE UNDIP - Universitas Diponegoro
+                        <td style="background-color: #f8fafc; padding: 24px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0; color: #9ca3af; font-size: 13px; line-height: 1.5;">
+                                Email otomatis dari sistem VENUE UNDIP<br>
+                                © ${new Date().getFullYear()} Universitas Diponegoro
                             </p>
                         </td>
                     </tr>
